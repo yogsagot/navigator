@@ -1,0 +1,805 @@
+[meta]
+name = "한국어"
+flag = "KR"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:90
+"~Y~es" = "예(~Y~)"
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
+"O~K~" = "O~K~"
+# navml/widgets/dialog/dialog/dialog.nml:96
+"~N~o" = "아니요(~N~)"
+# navml/widgets/dialog/dialog/dialog.nml:103
+"~C~ancel" = "취소(~C~)"
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
+"~H~elp" = "도움말(~H~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
+"Open file" = "파일 열기"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
+"~N~ame" = "이름(~N~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
+"~D~irectories" = "디렉터리(~D~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
+"~F~iles" = "파일(~F~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
+"Cancel" = "취소"
+# navml/widgets/window_manager/window_manager.nml:19
+"Windows Manager" = "창 관리자"
+# navml/widgets/window_manager/window_manager.nml:26
+"~W~indows" = "창(~W~)"
+# navml/widgets/window_manager/window_manager.nml:55
+"C~l~ose" = "닫기(~L~)"
+# navml/calendars.py:75
+"January" = "1월"
+# navml/calendars.py:75
+"February" = "2월"
+# navml/calendars.py:75
+"March" = "3월"
+# navml/calendars.py:75
+"April" = "4월"
+# navml/calendars.py:75
+"May" = "5월"
+# navml/calendars.py:75
+"June" = "6월"
+# navml/calendars.py:76
+"July" = "7월"
+# navml/calendars.py:76
+"August" = "8월"
+# navml/calendars.py:76
+"September" = "9월"
+# navml/calendars.py:76
+"October" = "10월"
+# navml/calendars.py:76
+"November" = "11월"
+# navml/calendars.py:77
+"December" = "12월"
+# navml/calendars.py:274
+"~G~regorian" = "그레고리력(~G~)"
+# navml/calendars.py:300
+"~J~ulian" = "율리우스력(~J~)"
+# navml/calendars.py:343
+"~H~ebrew" = "히브리력(~H~)"
+# navml/calendars.py:438
+"~I~slamic (tabular)" = "이슬람력·계산(~I~)"
+# navml/calendars.py:527
+"Islamic (~U~mm al-Qura)" = "이슬람력·움 알쿠라(~U~)"
+# navml/calendars.py:544
+"Islamic (Di~y~anet, Turkey)" = "이슬람력·디야네트(~Y~)"
+# navml/calendars.py:559
+"Islamic (~M~ABIMS, Indonesia)" = "이슬람력·MABIMS 인도네시아(~M~)"
+# navml/calendars.py:574
+"Islamic (MABIMS, Malay~s~ia)" = "이슬람력·MABIMS 말레이시아(~S~)"
+# navml/calendars.py:591
+"~P~ersian" = "페르시아력(~P~)"
+# navml/calendars.py:640
+"In~d~ian national (Saka)" = "인도 국가력·사카(~D~)"
+# navml/calendars.py:687
+"~C~optic" = "콥트력(~C~)"
+# navml/calendars.py:732
+"~E~thiopian" = "에티오피아력(~E~)"
+# navml/calendars.py:767
+"Chi~n~ese" = "중국 음력(~N~)"
+# navml/calendars.py:865
+"Spring Festival" = "춘절"
+# navml/calendars.py:881
+"~K~orean" = "한국 음력(~K~)"
+# navml/calendars.py:884
+"Seollal" = "설날"
+# navml/calendars.py:898
+"~V~ietnamese" = "베트남 음력(~V~)"
+# navml/calendars.py:906
+"Tết" = "뗏"
+# navml/calendars.py:930
+"J~a~panese" = "일본 연호(~A~)"
+# navml/calendars.py:968
+"~T~hai solar" = "태국 불력(~T~)"
+# navml/calendars.py:986
+"~R~OC (Minguo)" = "민국 기년(~R~)"
+# navml/calendars.py:1009
+"~B~engali (Bangladesh)" = "벵골력·방글라데시(~B~)"
+# navml/calendars.py:1064
+"Nepa~l~i (Bikram Sambat)" = "네팔 비크람력(~L~)"
+# navml/calendars.py:1124
+"Badíʿ (Baháʼí)" = "바디력(바하이)"
+# navml/calendars.py:1201
+"Burmese (Myanmar)" = "버마력(미얀마)"
+# navml/calendars.py:1336
+"Tibetan (Phugpa)" = "티베트력(푹파)"
+# navml/calendars.py:1484
+"A~f~ghan Solar Hijri" = "아프간 태양력(~F~)"
+# navml/calendars.py:1516
+"Khmer, Thai, La~o~ lunar" = "크메르·타이·라오 음력(~O~)"
+# navml/calendars.py:404
+"Nisan" = "니산"
+# navml/calendars.py:404
+"Iyyar" = "이야르"
+# navml/calendars.py:404
+"Sivan" = "시반"
+# navml/calendars.py:404
+"Tammuz" = "탐무즈"
+# navml/calendars.py:404
+"Av" = "아브"
+# navml/calendars.py:404
+"Elul" = "엘룰"
+# navml/calendars.py:405
+"Tishri" = "티슈리"
+# navml/calendars.py:405
+"Heshvan" = "헤슈반"
+# navml/calendars.py:405
+"Kislev" = "키슬레브"
+# navml/calendars.py:405
+"Tevet" = "테베트"
+# navml/calendars.py:405
+"Shevat" = "셰바트"
+# navml/calendars.py:406
+"Adar II" = "아다르 II"
+# navml/calendars.py:460
+"Muharram" = "무하람"
+# navml/calendars.py:460
+"Safar" = "사파르"
+# navml/calendars.py:460
+"Rabi' I" = "라비 I"
+# navml/calendars.py:460
+"Rabi' II" = "라비 II"
+# navml/calendars.py:460
+"Jumada I" = "주마다 I"
+# navml/calendars.py:460
+"Jumada II" = "주마다 II"
+# navml/calendars.py:461
+"Rajab" = "라잡"
+# navml/calendars.py:461
+"Sha'ban" = "샤반"
+# navml/calendars.py:461
+"Ramadan" = "라마단"
+# navml/calendars.py:461
+"Shawwal" = "샤왈"
+# navml/calendars.py:461
+"Dhu'l-Qa'da" = "둘카다"
+# navml/calendars.py:461
+"Dhu'l-Hijja" = "둘히자"
+# navml/calendars.py:627
+"Farvardin" = "파르바르딘"
+# navml/calendars.py:627
+"Ordibehesht" = "Ordibehesht"
+# navml/calendars.py:627
+"Khordad" = "호르다드"
+# navml/calendars.py:627
+"Tir" = "티르"
+# navml/calendars.py:627
+"Mordad" = "모르다드"
+# navml/calendars.py:627
+"Shahrivar" = "샤흐리바르"
+# navml/calendars.py:628
+"Mehr" = "메흐르"
+# navml/calendars.py:628
+"Aban" = "아반"
+# navml/calendars.py:628
+"Azar" = "아자르"
+# navml/calendars.py:628
+"Dey" = "데이"
+# navml/calendars.py:628
+"Bahman" = "바흐만"
+# navml/calendars.py:628
+"Esfand" = "에스판드"
+# navml/calendars.py:672
+"Chaitra" = "차이트라"
+# navml/calendars.py:672
+"Vaishakha" = "바이샤카"
+# navml/calendars.py:672
+"Jyeshtha" = "제슈타"
+# navml/calendars.py:672
+"Ashadha" = "아샤다"
+# navml/calendars.py:672
+"Shravana" = "슈라바나"
+# navml/calendars.py:672
+"Bhadra" = "바드라"
+# navml/calendars.py:673
+"Ashvin" = "아슈빈"
+# navml/calendars.py:673
+"Kartika" = "카르티카"
+# navml/calendars.py:673
+"Agrahayana" = "아가한"
+# navml/calendars.py:673
+"Pausha" = "파우샤"
+# navml/calendars.py:673
+"Magha" = "마가"
+# navml/calendars.py:673
+"Phalguna" = "팔구나"
+# navml/calendars.py:717
+"Thout" = "토우트"
+# navml/calendars.py:717
+"Paopi" = "파오피"
+# navml/calendars.py:717
+"Hathor" = "하토르"
+# navml/calendars.py:717
+"Koiak" = "코이악"
+# navml/calendars.py:717
+"Tobi" = "토비"
+# navml/calendars.py:717
+"Meshir" = "메시르"
+# navml/calendars.py:717
+"Paremhat" = "파렘하트"
+# navml/calendars.py:718
+"Parmouti" = "파르무티"
+# navml/calendars.py:718
+"Pashons" = "파숀스"
+# navml/calendars.py:718
+"Paoni" = "파오니"
+# navml/calendars.py:718
+"Epip" = "에피프"
+# navml/calendars.py:718
+"Mesori" = "메소리"
+# navml/calendars.py:718
+"Nasie" = "나시"
+# navml/calendars.py:742
+"Meskerem" = "메스케렘"
+# navml/calendars.py:742
+"Tikimt" = "티킴트"
+# navml/calendars.py:742
+"Hidar" = "히다르"
+# navml/calendars.py:742
+"Tahsas" = "타흐사스"
+# navml/calendars.py:742
+"Ter" = "테르"
+# navml/calendars.py:742
+"Yekatit" = "예카티트"
+# navml/calendars.py:742
+"Megabit" = "메가비트"
+# navml/calendars.py:743
+"Miyazya" = "미야지야"
+# navml/calendars.py:743
+"Ginbot" = "긴보트"
+# navml/calendars.py:743
+"Sene" = "세네"
+# navml/calendars.py:743
+"Hamle" = "하믈레"
+# navml/calendars.py:743
+"Nehase" = "네하세"
+# navml/calendars.py:743
+"Pagume" = "파구메"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 1" = "정월"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 2" = "2월"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 3" = "3월"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 4" = "4월"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 5" = "5월"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 6" = "6월"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 7" = "7월"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 8" = "8월"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 9" = "9월"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 10" = "10월"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 11" = "11월"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 12" = "12월"
+# navml/calendars.py:848
+"Jiǎ" = "갑"
+# navml/calendars.py:848
+"Yǐ" = "을"
+# navml/calendars.py:848
+"Bǐng" = "병"
+# navml/calendars.py:848
+"Dīng" = "정"
+# navml/calendars.py:848
+"Wù" = "무"
+# navml/calendars.py:848
+"Jǐ" = "기"
+# navml/calendars.py:848
+"Gēng" = "경"
+# navml/calendars.py:848
+"Xīn" = "신"
+# navml/calendars.py:849
+"Rén" = "임"
+# navml/calendars.py:849
+"Guǐ" = "계"
+# navml/calendars.py:850
+"Zǐ" = "자"
+# navml/calendars.py:850
+"Chǒu" = "축"
+# navml/calendars.py:850
+"Yín" = "인"
+# navml/calendars.py:850
+"Mǎo" = "묘"
+# navml/calendars.py:850
+"Chén" = "진"
+# navml/calendars.py:850
+"Sì" = "사"
+# navml/calendars.py:850
+"Wǔ" = "오"
+# navml/calendars.py:850
+"Wèi" = "미"
+# navml/calendars.py:851
+"Shēn" = "신"
+# navml/calendars.py:851
+"Yǒu" = "유"
+# navml/calendars.py:851
+"Xū" = "술"
+# navml/calendars.py:851
+"Hài" = "해"
+# navml/calendars.py:861
+"Rat" = "쥐"
+# navml/calendars.py:861
+"Ox" = "소"
+# navml/calendars.py:861
+"Tiger" = "호랑이"
+# navml/calendars.py:861
+"Rabbit" = "토끼"
+# navml/calendars.py:861
+"Dragon" = "용"
+# navml/calendars.py:861
+"Snake" = "뱀"
+# navml/calendars.py:861
+"Horse" = "말"
+# navml/calendars.py:862
+"Goat" = "양"
+# navml/calendars.py:862
+"Monkey" = "원숭이"
+# navml/calendars.py:862
+"Rooster" = "닭"
+# navml/calendars.py:862
+"Dog" = "개"
+# navml/calendars.py:862
+"Pig" = "돼지"
+# navml/calendars.py:902
+"Buffalo" = "물소"
+# navml/calendars.py:902
+"Cat" = "고양이"
+# navml/calendars.py:940
+"Meiji" = "메이지"
+# navml/calendars.py:940
+"Taishō" = "다이쇼"
+# navml/calendars.py:940
+"Shōwa" = "쇼와"
+# navml/calendars.py:940
+"Heisei" = "헤이세이"
+# navml/calendars.py:940
+"Reiwa" = "레이와"
+# navml/calendars.py:1042
+"Boishakh" = "보이샤크"
+# navml/calendars.py:1042
+"Joishtho" = "조이슈토"
+# navml/calendars.py:1042
+"Asharh" = "아샤르"
+# navml/calendars.py:1042
+"Shrabon" = "슈라본"
+# navml/calendars.py:1042
+"Bhadro" = "바드로"
+# navml/calendars.py:1042
+"Ashwin" = "아슈빈"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Kartik" = "카르틱"
+# navml/calendars.py:1043
+"Ogrohayon" = "오그로하욘"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Poush" = "포우슈"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Magh" = "마그"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Falgun" = "팔군"
+# navml/calendars.py:1043
+"Choitro" = "초이트로"
+# navml/calendars.py:1100
+"Baisakh" = "바이사크"
+# navml/calendars.py:1100
+"Jestha" = "제스타"
+# navml/calendars.py:1100
+"Asar" = "아사르"
+# navml/calendars.py:1100
+"Shrawan" = "슈라완"
+# navml/calendars.py:1100
+"Bhadau" = "바다우"
+# navml/calendars.py:1100
+"Asoj" = "아소즈"
+# navml/calendars.py:1101
+"Mangsir" = "망시르"
+# navml/calendars.py:1101
+"Chait" = "차이트"
+# navml/calendars.py:1106
+"Computed: Nepal's almanac may differ by a day" = "계산값: 네팔 역서와 하루 차이가 날 수 있음"
+# navml/calendars.py:1169
+"Bahá" = "바하"
+# navml/calendars.py:1169
+"Jalál" = "잘랄"
+# navml/calendars.py:1169
+"Jamál" = "자말"
+# navml/calendars.py:1169
+"ʿAẓamat" = "아자마트"
+# navml/calendars.py:1169
+"Núr" = "누르"
+# navml/calendars.py:1169
+"Raḥmat" = "라흐마트"
+# navml/calendars.py:1169
+"Kalimát" = "칼리마트"
+# navml/calendars.py:1170
+"Kamál" = "카말"
+# navml/calendars.py:1170
+"Asmáʼ" = "아스마"
+# navml/calendars.py:1170
+"ʿIzzat" = "이자트"
+# navml/calendars.py:1170
+"Mashíyyat" = "마시야트"
+# navml/calendars.py:1170
+"ʿIlm" = "일름"
+# navml/calendars.py:1170
+"Qudrat" = "쿠드라트"
+# navml/calendars.py:1170
+"Qawl" = "카울"
+# navml/calendars.py:1171
+"Masáʼil" = "마사일"
+# navml/calendars.py:1171
+"Sharaf" = "샤라프"
+# navml/calendars.py:1171
+"Sulṭán" = "술탄"
+# navml/calendars.py:1171
+"Mulk" = "물크"
+# navml/calendars.py:1171
+"Ayyám-i-Há" = "윤일"
+# navml/calendars.py:1171
+"ʿAláʼ" = "알라"
+# navml/calendars.py:1295
+"Tagu" = "타구"
+# navml/calendars.py:1295
+"Kason" = "카손"
+# navml/calendars.py:1295
+"Nayon" = "나욘"
+# navml/calendars.py:1295
+"First Waso" = "제1 와소"
+# navml/calendars.py:1295
+"Waso" = "와소"
+# navml/calendars.py:1295
+"Wagaung" = "와가웅"
+# navml/calendars.py:1296
+"Tawthalin" = "타우탈린"
+# navml/calendars.py:1296
+"Thadingyut" = "타딘주트"
+# navml/calendars.py:1296
+"Tazaungmon" = "타자웅몬"
+# navml/calendars.py:1296
+"Nadaw" = "나다우"
+# navml/calendars.py:1296
+"Pyatho" = "퍄토"
+# navml/calendars.py:1297
+"Tabodwe" = "타보드웨"
+# navml/calendars.py:1297
+"Tabaung" = "타바웅"
+# navml/calendars.py:1300
+"Second Waso" = "제2 와소"
+# navml/calendars.py:1456
+"Wood" = "목"
+# navml/calendars.py:1456
+"Fire" = "화"
+# navml/calendars.py:1456
+"Earth" = "토"
+# navml/calendars.py:1456
+"Iron" = "금"
+# navml/calendars.py:1456
+"Water" = "수"
+# navml/calendars.py:1488
+"Hamal" = "하말"
+# navml/calendars.py:1488
+"Sawr" = "사우르"
+# navml/calendars.py:1488
+"Jawza" = "자우자"
+# navml/calendars.py:1488
+"Saratan" = "사라탄"
+# navml/calendars.py:1488
+"Asad" = "아사드"
+# navml/calendars.py:1488
+"Sonbola" = "손볼라"
+# navml/calendars.py:1489
+"Mizan" = "미잔"
+# navml/calendars.py:1489
+"Aqrab" = "아크라브"
+# navml/calendars.py:1489
+"Qaws" = "카우스"
+# navml/calendars.py:1489
+"Jadi" = "자디"
+# navml/calendars.py:1489
+"Dalw" = "달우"
+# navml/calendars.py:1489
+"Hut" = "후트"
+# navml/calendars.py:1657
+"Pisakh" = "피사크"
+# navml/calendars.py:1657
+"Jesth" = "제스"
+# navml/calendars.py:1657
+"Asadh" = "아사드"
+# navml/calendars.py:1658
+"Pathamasadh" = "파타마사드"
+# navml/calendars.py:1658
+"Tutiyasadh" = "투티야사드"
+# navml/calendars.py:1658
+"Srap" = "스랍"
+# navml/calendars.py:1659
+"Phatrabot" = "파트라봇"
+# navml/calendars.py:1659
+"Assoch" = "아소크"
+# navml/calendars.py:1659
+"Kadeuk" = "카드으크"
+# navml/calendars.py:1660
+"Migasir" = "미가시르"
+# navml/calendars.py:1660
+"Boss" = "보스"
+# navml/calendars.py:1660
+"Meak" = "미악"
+# navml/calendars.py:1660
+"Phalkun" = "팔쿤"
+# navml/calendars.py:1661
+"Cheit" = "체이트"
+# navml/calendars.py:261
+"{day} {month} {year}" = "{year}년 {month} {day}일"
+# navml/calendars.py:324
+"Easter (Orthodox)" = "부활절(정교회)"
+# navml/calendars.py:326
+"Easter (Western)" = "부활절(서방 교회)"
+# navml/calendars.py:406
+"Adar I" = "아다르 I"
+# navml/calendars.py:406
+"Adar" = "아다르"
+# navml/calendars.py:511
+"Computed: the published calendar may differ by a day" = "계산값: 공표된 달력과 하루 차이가 날 수 있음"
+# navml/calendars.py:853
+"{stem}-{branch}, year of the {animal}" = "{stem}{branch}년, {animal}띠 해"
+# navml/calendars.py:954, navml/calendars.py:975, navml/calendars.py:995
+"{label} ({year})" = "{label}({year})"
+# navml/calendars.py:1176
+"Naw-Rúz" = "노루즈"
+# navml/calendars.py:1178
+"Computed: not yet published by the Baháʼí World Centre" = "계산값: 바하이 세계 센터가 아직 공표하지 않음"
+# navml/calendars.py:1309, navml/calendars.py:1674
+"Full moon" = "보름"
+# navml/calendars.py:1461
+"Losar" = "로사르"
+# navml/calendars.py:1464
+"Doubled day" = "중복일"
+# navml/calendars.py:950
+"{era} {year}" = "{era} {year}년"
+# navml/calendars.py:972
+"{year} BE" = "불기 {year}년"
+# navml/calendars.py:992
+"{year} before ROC" = "민국 전 {year}년"
+# navml/calendars.py:1311, navml/calendars.py:1691
+"New moon" = "초하루"
+# navml/calendars.py:1468
+"{element} {animal} year" = "{element}-{animal}의 해"
+# navml/calendars.py:1677
+"Asalha Puja" = "아살하 푸자"
+# navml/calendars.py:830, navml/calendars.py:1449
+"Leap {number}" = "윤{number}월"
+# navml/calendars.py:991
+"ROC {year}" = "민국 {year}년"
+# navml/calendars.py:1467
+"Day {number} is skipped" = "{number}일 결일"
+# navml/calendars.py:1679
+"Magha Puja" = "마가 푸자"
+# navml/calendars.py:1315
+"Myanmar New Year's Day, {year} ME" = "미얀마 설날, {year} ME"
+# navml/calendars.py:1681
+"Vesak" = "베삭"
+# navml/calendars.py:1683
+"Magha Puja (Cambodia)" = "마가 푸자(캄보디아)"
+# navml/calendars.py:1685
+"Magha Puja (Thailand, Laos)" = "마가 푸자(태국, 라오스)"
+# navml/calendars.py:1687
+"Vesak (Cambodia)" = "베삭(캄보디아)"
+# navml/calendars.py:1689
+"Vesak (Thailand, Laos)" = "베삭(태국, 라오스)"
+# navml/commands.py:30, navml/widgets/window/window.py:318
+"Close" = "닫기"
+# navml/commands.py:36, navml/widgets/window/window.py:320
+"Zoom" = "최대화"
+# navml/commands.py:76
+"List" = "목록"
+# navml/commands.py:86
+"Tile" = "바둑판식"
+# navml/commands.py:95
+"Cascade" = "계단식"
+# navml/commands.py:105
+"Close all" = "모두 닫기"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "열린 창이 없습니다"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "정렬할 수 있는 창이 없습니다"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "닫을 수 있는 창이 없습니다"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "이 창은 최대화할 수 없습니다"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "이 창은 닫을 수 없습니다"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "{number}번 창이 없습니다"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "검정"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "파랑"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "초록"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "청록"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "빨강"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "자홍"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "갈색"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "밝은 회색"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "어두운 회색"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "밝은 파랑"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "밝은 초록"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "밝은 청록"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "밝은 빨강"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "밝은 자홍"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "노랑"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "흰색"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " 텍스트 "
+# navml/widgets/dialog/commands.py:27
+"OK" = "확인"
+# navml/widgets/dialog/commands.py:41
+"Help" = "도움말"
+# navml/widgets/dialog/commands.py:55
+"Next tab" = "다음 탭"
+# navml/widgets/dialog/commands.py:61
+"Previous tab" = "이전 탭"
+# navml/widgets/dialog/commands.py:74
+"Search" = "검색"
+# navml/widgets/dialog/commands.py:92
+"Cut" = "잘라내기"
+# navml/widgets/dialog/commands.py:98
+"Copy" = "복사"
+# navml/widgets/dialog/commands.py:104
+"Paste" = "붙여넣기"
+# navml/widgets/dialog/commands.py:110
+"Clear" = "지우기"
+# navml/widgets/dialog/commands.py:120
+"Select all" = "모두 선택"
+# navml/widgets/dialog/commands.py:133
+"Previous month" = "이전 달"
+# navml/widgets/dialog/commands.py:139
+"Next month" = "다음 달"
+# navml/widgets/dialog/commands.py:145
+"Previous year" = "이전 해"
+# navml/widgets/dialog/commands.py:151
+"Next year" = "다음 해"
+# navml/widgets/dialog/commands.py:157
+"Choose month" = "월 선택"
+# navml/widgets/dialog/commands.py:163
+"Choose year" = "연도 선택"
+# navml/widgets/dialog/commands.py:169
+"Go to current date" = "오늘로 이동"
+# navml/widgets/dialog/commands.py:178
+"Calendar system" = "달력 체계"
+# navml/widgets/dialog/commands.py:190
+"Calendar view" = "달력 보기"
+# navml/widgets/dialog/commands.py:200
+"Swap calendars" = "달력 바꾸기"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Mo" = "월"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Tu" = "화"
+# navml/widgets/dialog/date_button/date_button.py:106
+"We" = "수"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Th" = "목"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Fr" = "금"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Sa" = "토"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Su" = "일"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "월요일"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "화요일"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "수요일"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "목요일"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "금요일"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "토요일"
+# navml/widgets/dialog/date_button/date_button.py:112
+"Sunday" = "일요일"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Month" = "월"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Year" = "연도"
+# navml/widgets/dialog/date_button/date_button.py:426
+"Choose" = "선택"
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
+"Today" = "오늘"
+# navml/widgets/dialog/date_button/date_button.py:460
+"The month before" = "이전 달"
+# navml/widgets/dialog/date_button/date_button.py:462
+"The month after" = "다음 달"
+# navml/widgets/dialog/date_button/date_button.py:464
+"A click chooses the month" = "클릭하면 월 선택"
+# navml/widgets/dialog/date_button/date_button.py:466
+"A click chooses the year" = "클릭하면 연도 선택"
+# navml/widgets/dialog/date_button/date_button.py:473
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, {week}주차"
+# navml/widgets/dialog/date_button/date_button.py:484
+"{n} day from today" = ["오늘부터 {n}일 후"]
+# navml/widgets/dialog/date_button/date_button.py:486
+"{n} day ago" = ["{n}일 전"]
+# navml/widgets/dialog/dialog/dialog.py:290
+"Enter accepts, Escape dismisses." = "Enter로 확인, Escape로 취소합니다."
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
+"Invalid file name." = "잘못된 파일 이름입니다."
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
+"Invalid drive or directory." = "잘못된 드라이브 또는 디렉터리입니다."
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
+"Error" = "오류"
+# navml/widgets/dialog/file_list/file_list.py:213
+"Directory" = "디렉터리"
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+" Search: " = " 검색: "
+# navml/widgets/dialog/history/history.py:114
+"Choose from the list ({key})" = "목록에서 선택 ({key})"
+# navml/widgets/dialog/history/history.py:116
+"Earlier entries ({key})" = "이전 항목 ({key})"
+# navml/widgets/dialog/input_line/input_line.py:418
+"The line cannot be changed now" = "지금은 줄을 바꿀 수 없습니다"
+# navml/widgets/dialog/input_line/input_line.py:449
+"Cu~t~" = "잘라내기(~T~)"
+# navml/widgets/dialog/input_line/input_line.py:450
+"~C~opy" = "복사(~C~)"
+# navml/widgets/dialog/input_line/input_line.py:451
+"~P~aste" = "붙여넣기(~P~)"
+# navml/widgets/dialog/input_line/input_line.py:452
+"C~l~ear" = "지우기(~L~)"
+# navml/widgets/dialog/input_line/input_line.py:454
+"Select ~a~ll" = "모두 선택(~A~)"
+# navml/widgets/dialog/input_line/input_line.py:420
+"Nothing is selected" = "선택된 것이 없습니다"
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
+"The line is empty" = "줄이 비어 있습니다"
+# navml/widgets/dialog/input_line/input_line.py:427
+"All of it is selected" = "모두 선택되어 있습니다"
+# navml/widgets/dialog/tab_view/tab_view.py:153
+"Tabs" = "탭"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Earlier tabs" = "앞쪽 탭"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Later tabs" = "뒤쪽 탭"
+# navml/widgets/dialog/tree_view/tree_view.py:582
+"Next" = "다음"
+# navml/widgets/menu/commands.py:14
+"Menu" = "메뉴"
+# navml/widgets/progress_bar/progress_bar.py:64
+"{done} of {total} done ({percent}%), {rest} to go" = "{total} 중 {done} 완료 ({percent}%), {rest} 남음"
+# navml/widgets/window/window.py:340
+"A double click zooms, a drag moves" = "더블 클릭으로 최대화, 드래그로 이동"
+# navml/widgets/window/window.py:342
+"A drag moves" = "드래그로 이동"
+# navml/widgets/window/window.py:381
+"Move" = "이동"
+# navml/widgets/window/window.py:381
+"Size" = "크기"
+# navml/widgets/window/window.py:381
+"Keep" = "유지"
+# navml/widgets/window/window.py:381
+"Undo" = "실행 취소"
+# navml/widgets/window/window.py:320
+"Restore" = "원래 크기"
+# navml/widgets/window/window.py:322
+"Drag to resize" = "드래그하여 크기 조절"

@@ -43,7 +43,8 @@ if str(ROOT) not in sys.path:
 from navkit.bidi import display_width  # noqa: E402
 
 #: The languages checked with no ``--language``: English and every catalogue.
-LANGUAGES = ("en", "he", "ar", "ja", "lv", "ru", "zh")
+LANGUAGES = ("en", "he", "ar", "ja", "lv", "ru", "zh", "de", "es", "fr", "pt", "uk", "pl", "it", "ko",
+             "cs", "tr", "zh_TW")
 
 #: Scenes whose picture is no box with captions of its own (a panel, the
 #: console, a menu): nothing for this check to measure.

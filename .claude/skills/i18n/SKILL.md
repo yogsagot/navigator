@@ -16,12 +16,16 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
   `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv, ru/uk/be, he, ar, ja/zh/ko; anything else counts like English).
+  `PLURAL_RULES` (en, lv, ru/uk/be, pl, cs, fr/pt, he, ar, ja/zh/ko; anything else -- de, es, it, tr -- counts
+  like English; Turkish writes both forms the same, a noun after a number staying singular).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
   A plural entry is a list of forms in the language's rule order (lv: one, other, zero -- `1 fails`, `2 faili`,
-  `10 failu`; he: one, two, other; ar: zero, one, two, few, many, other, CLDR's). `[meta] direction = "rtl"` (he,
+  `10 failu`; ru/uk: one, few, many; pl: one (1 only), few, many -- `1 plik`, `22 pliki`, `5 plików`; cs: one,
+  few (2-4), other; fr/pt: one (0 and 1), other; he: one, two, other; ar: zero, one, two, few, many, other, CLDR's).
+  A catalogue named for a region (`zh_TW.toml`, Traditional Chinese) is found before its bare language
+  (`language.resolve`), and takes the bare language's plural rule. `[meta] direction = "rtl"` (he,
   ar) mirrors the screen (`i18n.is_rtl`, the `navkit-bidi` skill).
 - **`navigator/lib/config/language.py`**: `install(config_dir)` registers the three places; `resolve(code)` takes a code, its
   bare language (`lv_LV` to `lv`), or English; empty means the environment (`$LC_ALL`, `$LC_MESSAGES`, `$LANG`).
@@ -74,9 +78,11 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   to miss. Reuse a key's placeholder names (`{host}`, `{reason}`, `{name}`) so one sentence is one key.
 - **Live**: text drawn in `render()` is live by itself. Text assigned once to a long-lived widget must be
   `bind(lambda _o: tr("..."), yielding=True)`; a message box built per use can take a plain `tr()`.
-- **The hotkey belongs to the translator**: `"~N~ame" = "~V~ārds"`. Chinese and Japanese (`zh`, `ja`) keep the
+- **The hotkey belongs to the translator**: `"~N~ame" = "~V~ārds"`. Chinese, Japanese and Korean (`zh`, `zh_TW`,
+  `ja`, `ko`) keep the
   English letter in ASCII parentheses after the caption, `"~N~ame" = "名前(~N~)"`, as CJK Windows and DOS
-  programs did: nobody presses a kanji with Alt, an IME sits in the way.
+  programs did: nobody presses a kanji with Alt, an IME sits in the way. Turkish avoids `I`/`İ`/`ı` as a hotkey: `MenuBar.hotkey`
+  compares `.lower()`, and `"İ".lower()` is two characters.
 - **Measure in cells, never `len()`**: a CJK character is two cells. `navkit.bidi.display_width` measures,
   `fit_cells` cuts and `pad_cells` pads (ljust/rjust/center); StaticText's `wrapped()` breaks Chinese and Japanese
   between characters (with kinsoku: no closing mark at a line's start). Whatever sizes, aligns or cuts a

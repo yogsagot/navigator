@@ -1,0 +1,805 @@
+[meta]
+name = "繁體中文"
+flag = "TW"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:90
+"~Y~es" = "是(~Y~)"
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
+"O~K~" = "O~K~"
+# navml/widgets/dialog/dialog/dialog.nml:96
+"~N~o" = "否(~N~)"
+# navml/widgets/dialog/dialog/dialog.nml:103
+"~C~ancel" = "取消(~C~)"
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
+"~H~elp" = "說明(~H~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
+"Open file" = "開啟檔案"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
+"~N~ame" = "名稱(~N~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
+"~D~irectories" = "目錄(~D~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
+"~F~iles" = "檔案(~F~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
+"Cancel" = "取消"
+# navml/widgets/window_manager/window_manager.nml:19
+"Windows Manager" = "視窗管理器"
+# navml/widgets/window_manager/window_manager.nml:26
+"~W~indows" = "視窗(~W~)"
+# navml/widgets/window_manager/window_manager.nml:55
+"C~l~ose" = "關閉(~L~)"
+# navml/calendars.py:75
+"January" = "一月"
+# navml/calendars.py:75
+"February" = "二月"
+# navml/calendars.py:75
+"March" = "三月"
+# navml/calendars.py:75
+"April" = "四月"
+# navml/calendars.py:75
+"May" = "五月"
+# navml/calendars.py:75
+"June" = "六月"
+# navml/calendars.py:76
+"July" = "七月"
+# navml/calendars.py:76
+"August" = "八月"
+# navml/calendars.py:76
+"September" = "九月"
+# navml/calendars.py:76
+"October" = "十月"
+# navml/calendars.py:76
+"November" = "十一月"
+# navml/calendars.py:77
+"December" = "十二月"
+# navml/calendars.py:274
+"~G~regorian" = "公曆(~G~)"
+# navml/calendars.py:300
+"~J~ulian" = "儒略曆(~J~)"
+# navml/calendars.py:343
+"~H~ebrew" = "希伯來曆(~H~)"
+# navml/calendars.py:438
+"~I~slamic (tabular)" = "伊斯蘭曆·算術(~I~)"
+# navml/calendars.py:527
+"Islamic (~U~mm al-Qura)" = "伊斯蘭曆·烏姆庫拉(~U~)"
+# navml/calendars.py:544
+"Islamic (Di~y~anet, Turkey)" = "伊斯蘭曆·土耳其宗教事務局(~Y~)"
+# navml/calendars.py:559
+"Islamic (~M~ABIMS, Indonesia)" = "伊斯蘭曆·MABIMS 印尼(~M~)"
+# navml/calendars.py:574
+"Islamic (MABIMS, Malay~s~ia)" = "伊斯蘭曆·MABIMS 馬來西亞(~S~)"
+# navml/calendars.py:591
+"~P~ersian" = "波斯曆(~P~)"
+# navml/calendars.py:640
+"In~d~ian national (Saka)" = "印度國曆·薩卡(~D~)"
+# navml/calendars.py:687
+"~C~optic" = "科普特曆(~C~)"
+# navml/calendars.py:732
+"~E~thiopian" = "衣索比亞曆(~E~)"
+# navml/calendars.py:767
+"Chi~n~ese" = "農曆(~N~)"
+# navml/calendars.py:865
+"Spring Festival" = "春節"
+# navml/calendars.py:881
+"~K~orean" = "韓國農曆(~K~)"
+# navml/calendars.py:884
+"Seollal" = "春節"
+# navml/calendars.py:898
+"~V~ietnamese" = "越南農曆(~V~)"
+# navml/calendars.py:906
+"Tết" = "春節"
+# navml/calendars.py:930
+"J~a~panese" = "日本年號(~A~)"
+# navml/calendars.py:968
+"~T~hai solar" = "泰國佛曆(~T~)"
+# navml/calendars.py:986
+"~R~OC (Minguo)" = "民國紀年(~R~)"
+# navml/calendars.py:1009
+"~B~engali (Bangladesh)" = "孟加拉曆·孟加拉國(~B~)"
+# navml/calendars.py:1064
+"Nepa~l~i (Bikram Sambat)" = "尼泊爾超日王曆(~L~)"
+# navml/calendars.py:1124
+"Badíʿ (Baháʼí)" = "巴迪曆(巴哈伊)"
+# navml/calendars.py:1201
+"Burmese (Myanmar)" = "緬曆(緬甸)"
+# navml/calendars.py:1336
+"Tibetan (Phugpa)" = "藏曆(浦派)"
+# navml/calendars.py:1484
+"A~f~ghan Solar Hijri" = "阿富汗太陽曆(~F~)"
+# navml/calendars.py:1516
+"Khmer, Thai, La~o~ lunar" = "高棉、泰、寮國農曆(~O~)"
+# navml/calendars.py:404
+"Nisan" = "尼散月"
+# navml/calendars.py:404
+"Iyyar" = "以珥月"
+# navml/calendars.py:404
+"Sivan" = "西彎月"
+# navml/calendars.py:404
+"Tammuz" = "搭模斯月"
+# navml/calendars.py:404
+"Av" = "埃波月"
+# navml/calendars.py:404
+"Elul" = "以祿月"
+# navml/calendars.py:405
+"Tishri" = "提斯利月"
+# navml/calendars.py:405
+"Heshvan" = "瑪西班月"
+# navml/calendars.py:405
+"Kislev" = "基斯流月"
+# navml/calendars.py:405
+"Tevet" = "提別月"
+# navml/calendars.py:405
+"Shevat" = "細罰月"
+# navml/calendars.py:406
+"Adar II" = "亞達二月"
+# navml/calendars.py:460
+"Muharram" = "穆哈蘭姆月"
+# navml/calendars.py:460
+"Safar" = "色法爾月"
+# navml/calendars.py:460
+"Rabi' I" = "賴比爾一月"
+# navml/calendars.py:460
+"Rabi' II" = "賴比爾二月"
+# navml/calendars.py:460
+"Jumada I" = "主馬達一月"
+# navml/calendars.py:460
+"Jumada II" = "主馬達二月"
+# navml/calendars.py:461
+"Rajab" = "賴哲卜月"
+# navml/calendars.py:461
+"Sha'ban" = "舍爾邦月"
+# navml/calendars.py:461
+"Ramadan" = "賴買丹月"
+# navml/calendars.py:461
+"Shawwal" = "閃瓦勒月"
+# navml/calendars.py:461
+"Dhu'l-Qa'da" = "都爾喀德月"
+# navml/calendars.py:461
+"Dhu'l-Hijja" = "都爾黑哲月"
+# navml/calendars.py:627
+"Farvardin" = "法爾瓦丁"
+# navml/calendars.py:627
+"Ordibehesht" = "奧迪貝赫特"
+# navml/calendars.py:627
+"Khordad" = "霍爾達德"
+# navml/calendars.py:627
+"Tir" = "蒂爾"
+# navml/calendars.py:627
+"Mordad" = "莫爾達德"
+# navml/calendars.py:627
+"Shahrivar" = "沙赫里瓦爾"
+# navml/calendars.py:628
+"Mehr" = "梅赫爾"
+# navml/calendars.py:628
+"Aban" = "阿班"
+# navml/calendars.py:628
+"Azar" = "阿扎爾"
+# navml/calendars.py:628
+"Dey" = "達伊"
+# navml/calendars.py:628
+"Bahman" = "巴赫曼"
+# navml/calendars.py:628
+"Esfand" = "埃斯凡德"
+# navml/calendars.py:672
+"Chaitra" = "查伊特拉"
+# navml/calendars.py:672
+"Vaishakha" = "韋沙卡"
+# navml/calendars.py:672
+"Jyeshtha" = "傑斯塔"
+# navml/calendars.py:672
+"Ashadha" = "阿沙達"
+# navml/calendars.py:672
+"Shravana" = "斯拉瓦納"
+# navml/calendars.py:672
+"Bhadra" = "巴德拉"
+# navml/calendars.py:673
+"Ashvin" = "阿斯溫"
+# navml/calendars.py:673
+"Kartika" = "卡爾蒂卡"
+# navml/calendars.py:673
+"Agrahayana" = "阿加漢"
+# navml/calendars.py:673
+"Pausha" = "鮑沙"
+# navml/calendars.py:673
+"Magha" = "馬加"
+# navml/calendars.py:673
+"Phalguna" = "帕爾古納"
+# navml/calendars.py:717
+"Thout" = "圖特月"
+# navml/calendars.py:717
+"Paopi" = "巴巴月"
+# navml/calendars.py:717
+"Hathor" = "哈圖爾月"
+# navml/calendars.py:717
+"Koiak" = "基亞克月"
+# navml/calendars.py:717
+"Tobi" = "圖巴月"
+# navml/calendars.py:717
+"Meshir" = "阿姆希爾月"
+# navml/calendars.py:717
+"Paremhat" = "巴拉哈特月"
+# navml/calendars.py:718
+"Parmouti" = "巴拉姆達月"
+# navml/calendars.py:718
+"Pashons" = "巴尚斯月"
+# navml/calendars.py:718
+"Paoni" = "巴烏納月"
+# navml/calendars.py:718
+"Epip" = "阿比卜月"
+# navml/calendars.py:718
+"Mesori" = "邁斯拉月"
+# navml/calendars.py:718
+"Nasie" = "閏餘月"
+# navml/calendars.py:742
+"Meskerem" = "梅斯克倫月"
+# navml/calendars.py:742
+"Tikimt" = "提克姆特月"
+# navml/calendars.py:742
+"Hidar" = "希達爾月"
+# navml/calendars.py:742
+"Tahsas" = "塔赫薩斯月"
+# navml/calendars.py:742
+"Ter" = "特爾月"
+# navml/calendars.py:742
+"Yekatit" = "葉卡提特月"
+# navml/calendars.py:742
+"Megabit" = "梅加比特月"
+# navml/calendars.py:743
+"Miyazya" = "米亞齊亞月"
+# navml/calendars.py:743
+"Ginbot" = "金博特月"
+# navml/calendars.py:743
+"Sene" = "塞內月"
+# navml/calendars.py:743
+"Hamle" = "哈姆雷月"
+# navml/calendars.py:743
+"Nehase" = "內哈塞月"
+# navml/calendars.py:743
+"Pagume" = "帕古梅月"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 1" = "正月"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 2" = "二月"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 3" = "三月"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 4" = "四月"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 5" = "五月"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 6" = "六月"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 7" = "七月"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 8" = "八月"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 9" = "九月"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 10" = "十月"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 11" = "冬月"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 12" = "臘月"
+# navml/calendars.py:848
+"Jiǎ" = "甲"
+# navml/calendars.py:848
+"Yǐ" = "乙"
+# navml/calendars.py:848
+"Bǐng" = "丙"
+# navml/calendars.py:848
+"Dīng" = "丁"
+# navml/calendars.py:848
+"Wù" = "戊"
+# navml/calendars.py:848
+"Jǐ" = "己"
+# navml/calendars.py:848
+"Gēng" = "庚"
+# navml/calendars.py:848
+"Xīn" = "辛"
+# navml/calendars.py:849
+"Rén" = "壬"
+# navml/calendars.py:849
+"Guǐ" = "癸"
+# navml/calendars.py:850
+"Zǐ" = "子"
+# navml/calendars.py:850
+"Chǒu" = "丑"
+# navml/calendars.py:850
+"Yín" = "寅"
+# navml/calendars.py:850
+"Mǎo" = "卯"
+# navml/calendars.py:850
+"Chén" = "辰"
+# navml/calendars.py:850
+"Sì" = "巳"
+# navml/calendars.py:850
+"Wǔ" = "午"
+# navml/calendars.py:850
+"Wèi" = "未"
+# navml/calendars.py:851
+"Shēn" = "申"
+# navml/calendars.py:851
+"Yǒu" = "酉"
+# navml/calendars.py:851
+"Xū" = "戌"
+# navml/calendars.py:851
+"Hài" = "亥"
+# navml/calendars.py:861
+"Rat" = "鼠"
+# navml/calendars.py:861
+"Ox" = "牛"
+# navml/calendars.py:861
+"Tiger" = "虎"
+# navml/calendars.py:861
+"Rabbit" = "兔"
+# navml/calendars.py:861
+"Dragon" = "龍"
+# navml/calendars.py:861
+"Snake" = "蛇"
+# navml/calendars.py:861
+"Horse" = "馬"
+# navml/calendars.py:862
+"Goat" = "羊"
+# navml/calendars.py:862
+"Monkey" = "猴"
+# navml/calendars.py:862
+"Rooster" = "雞"
+# navml/calendars.py:862
+"Dog" = "狗"
+# navml/calendars.py:862
+"Pig" = "豬"
+# navml/calendars.py:902
+"Buffalo" = "水牛"
+# navml/calendars.py:902
+"Cat" = "貓"
+# navml/calendars.py:940
+"Meiji" = "明治"
+# navml/calendars.py:940
+"Taishō" = "大正"
+# navml/calendars.py:940
+"Shōwa" = "昭和"
+# navml/calendars.py:940
+"Heisei" = "平成"
+# navml/calendars.py:940
+"Reiwa" = "令和"
+# navml/calendars.py:1042
+"Boishakh" = "拜沙克月"
+# navml/calendars.py:1042
+"Joishtho" = "傑斯塔月"
+# navml/calendars.py:1042
+"Asharh" = "阿沙爾月"
+# navml/calendars.py:1042
+"Shrabon" = "什拉邦月"
+# navml/calendars.py:1042
+"Bhadro" = "巴德羅月"
+# navml/calendars.py:1042
+"Ashwin" = "阿什溫月"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Kartik" = "卡爾蒂克月"
+# navml/calendars.py:1043
+"Ogrohayon" = "奧格羅哈楊"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Poush" = "波什月"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Magh" = "馬格月"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Falgun" = "法爾貢月"
+# navml/calendars.py:1043
+"Choitro" = "喬伊特羅月"
+# navml/calendars.py:1100
+"Baisakh" = "拜薩克月"
+# navml/calendars.py:1100
+"Jestha" = "傑斯塔月"
+# navml/calendars.py:1100
+"Asar" = "阿薩爾月"
+# navml/calendars.py:1100
+"Shrawan" = "斯拉萬月"
+# navml/calendars.py:1100
+"Bhadau" = "巴道月"
+# navml/calendars.py:1100
+"Asoj" = "阿索季月"
+# navml/calendars.py:1101
+"Mangsir" = "曼西爾月"
+# navml/calendars.py:1101
+"Chait" = "柴特月"
+# navml/calendars.py:1106
+"Computed: Nepal's almanac may differ by a day" = "推算值：尼泊爾曆書可能相差一天"
+# navml/calendars.py:1169
+"Bahá" = "巴哈"
+# navml/calendars.py:1169
+"Jalál" = "賈拉勒"
+# navml/calendars.py:1169
+"Jamál" = "賈馬勒"
+# navml/calendars.py:1169
+"ʿAẓamat" = "阿扎馬特"
+# navml/calendars.py:1169
+"Núr" = "努爾"
+# navml/calendars.py:1169
+"Raḥmat" = "拉赫馬特"
+# navml/calendars.py:1169
+"Kalimát" = "卡利馬特"
+# navml/calendars.py:1170
+"Kamál" = "卡馬勒"
+# navml/calendars.py:1170
+"Asmáʼ" = "阿斯馬"
+# navml/calendars.py:1170
+"ʿIzzat" = "伊扎特"
+# navml/calendars.py:1170
+"Mashíyyat" = "馬希亞特"
+# navml/calendars.py:1170
+"ʿIlm" = "伊勒姆"
+# navml/calendars.py:1170
+"Qudrat" = "古德拉特"
+# navml/calendars.py:1170
+"Qawl" = "高勒"
+# navml/calendars.py:1171
+"Masáʼil" = "馬薩伊勒"
+# navml/calendars.py:1171
+"Sharaf" = "沙拉夫"
+# navml/calendars.py:1171
+"Sulṭán" = "蘇爾坦"
+# navml/calendars.py:1171
+"Mulk" = "穆勒克"
+# navml/calendars.py:1171
+"Ayyám-i-Há" = "閏日"
+# navml/calendars.py:1171
+"ʿAláʼ" = "阿拉"
+# navml/calendars.py:1295
+"Tagu" = "達古月"
+# navml/calendars.py:1295
+"Kason" = "卡宋月"
+# navml/calendars.py:1295
+"Nayon" = "納央月"
+# navml/calendars.py:1295
+"First Waso" = "前瓦索月"
+# navml/calendars.py:1295
+"Waso" = "瓦索月"
+# navml/calendars.py:1295
+"Wagaung" = "瓦岡月"
+# navml/calendars.py:1296
+"Tawthalin" = "都達林月"
+# navml/calendars.py:1296
+"Thadingyut" = "達丁究月"
+# navml/calendars.py:1296
+"Tazaungmon" = "達桑蒙月"
+# navml/calendars.py:1296
+"Nadaw" = "納多月"
+# navml/calendars.py:1296
+"Pyatho" = "皮亞托月"
+# navml/calendars.py:1297
+"Tabodwe" = "達保都月"
+# navml/calendars.py:1297
+"Tabaung" = "達保昂月"
+# navml/calendars.py:1300
+"Second Waso" = "後瓦索月"
+# navml/calendars.py:1456
+"Wood" = "木"
+# navml/calendars.py:1456
+"Fire" = "火"
+# navml/calendars.py:1456
+"Earth" = "土"
+# navml/calendars.py:1456
+"Iron" = "鐵"
+# navml/calendars.py:1456
+"Water" = "水"
+# navml/calendars.py:1488
+"Hamal" = "白羊月"
+# navml/calendars.py:1488
+"Sawr" = "金牛月"
+# navml/calendars.py:1488
+"Jawza" = "雙子月"
+# navml/calendars.py:1488
+"Saratan" = "巨蟹月"
+# navml/calendars.py:1488
+"Asad" = "獅子月"
+# navml/calendars.py:1488
+"Sonbola" = "處女月"
+# navml/calendars.py:1489
+"Mizan" = "天秤月"
+# navml/calendars.py:1489
+"Aqrab" = "天蠍月"
+# navml/calendars.py:1489
+"Qaws" = "射手月"
+# navml/calendars.py:1489
+"Jadi" = "摩羯月"
+# navml/calendars.py:1489
+"Dalw" = "寶瓶月"
+# navml/calendars.py:1489
+"Hut" = "雙魚月"
+# navml/calendars.py:1657
+"Pisakh" = "比薩月"
+# navml/calendars.py:1657
+"Jesth" = "傑斯月"
+# navml/calendars.py:1657
+"Asadh" = "阿薩月"
+# navml/calendars.py:1658
+"Pathamasadh" = "前阿薩月"
+# navml/calendars.py:1658
+"Tutiyasadh" = "後阿薩月"
+# navml/calendars.py:1658
+"Srap" = "斯拉月"
+# navml/calendars.py:1659
+"Phatrabot" = "帕特拉月"
+# navml/calendars.py:1659
+"Assoch" = "阿索月"
+# navml/calendars.py:1659
+"Kadeuk" = "卡德月"
+# navml/calendars.py:1660
+"Migasir" = "米加月"
+# navml/calendars.py:1660
+"Boss" = "博斯月"
+# navml/calendars.py:1660
+"Meak" = "密阿月"
+# navml/calendars.py:1660
+"Phalkun" = "帕昆月"
+# navml/calendars.py:1661
+"Cheit" = "切特月"
+# navml/calendars.py:261
+"{day} {month} {year}" = "{year}年{month}{day}日"
+# navml/calendars.py:324
+"Easter (Orthodox)" = "復活節(東正教)"
+# navml/calendars.py:326
+"Easter (Western)" = "復活節(西方教會)"
+# navml/calendars.py:406
+"Adar I" = "亞達一月"
+# navml/calendars.py:406
+"Adar" = "亞達月"
+# navml/calendars.py:511
+"Computed: the published calendar may differ by a day" = "推算值：可能與公佈的曆法相差一天"
+# navml/calendars.py:853
+"{stem}-{branch}, year of the {animal}" = "{stem}{branch}年，{animal}年"
+# navml/calendars.py:954, navml/calendars.py:975, navml/calendars.py:995
+"{label} ({year})" = "{label}（{year}）"
+# navml/calendars.py:1176
+"Naw-Rúz" = "諾魯孜節"
+# navml/calendars.py:1178
+"Computed: not yet published by the Baháʼí World Centre" = "推算值：巴哈伊世界中心尚未公佈"
+# navml/calendars.py:1309, navml/calendars.py:1674
+"Full moon" = "滿月"
+# navml/calendars.py:1461
+"Losar" = "藏曆新年"
+# navml/calendars.py:1464
+"Doubled day" = "重日"
+# navml/calendars.py:950
+"{era} {year}" = "{era}{year}年"
+# navml/calendars.py:972
+"{year} BE" = "佛曆{year}年"
+# navml/calendars.py:992
+"{year} before ROC" = "民前{year}年"
+# navml/calendars.py:1311, navml/calendars.py:1691
+"New moon" = "新月"
+# navml/calendars.py:1468
+"{element} {animal} year" = "{element}{animal}年"
+# navml/calendars.py:1677
+"Asalha Puja" = "三寶節"
+# navml/calendars.py:830, navml/calendars.py:1449
+"Leap {number}" = "閏{month}"
+# navml/calendars.py:991
+"ROC {year}" = "民國{year}年"
+# navml/calendars.py:1467
+"Day {number} is skipped" = "缺{number}日"
+# navml/calendars.py:1679
+"Magha Puja" = "萬佛節"
+# navml/calendars.py:1315
+"Myanmar New Year's Day, {year} ME" = "緬曆新年，{year}年"
+# navml/calendars.py:1681
+"Vesak" = "衛塞節"
+# navml/calendars.py:1683
+"Magha Puja (Cambodia)" = "萬佛節（柬埔寨）"
+# navml/calendars.py:1685
+"Magha Puja (Thailand, Laos)" = "萬佛節（泰國、寮國）"
+# navml/calendars.py:1687
+"Vesak (Cambodia)" = "衛塞節（柬埔寨）"
+# navml/calendars.py:1689
+"Vesak (Thailand, Laos)" = "衛塞節（泰國、寮國）"
+# navml/commands.py:30, navml/widgets/window/window.py:318
+"Close" = "關閉"
+# navml/commands.py:36, navml/widgets/window/window.py:320
+"Zoom" = "縮放"
+# navml/commands.py:76
+"List" = "清單"
+# navml/commands.py:86
+"Tile" = "並排"
+# navml/commands.py:95
+"Cascade" = "層疊"
+# navml/commands.py:105
+"Close all" = "全部關閉"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "沒有開啟的視窗"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "沒有可排列的視窗"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "沒有可關閉的視窗"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "此視窗無法縮放"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "此視窗無法關閉"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "沒有編號為 {number} 的視窗"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "黑色"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "藍色"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "綠色"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "青色"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "紅色"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "品紅"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "棕色"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "淺灰"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "深灰"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "淺藍"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "淺綠"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "淺青"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "淺紅"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "淺品紅"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "黃色"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "白色"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " 文字 "
+# navml/widgets/dialog/commands.py:27
+"OK" = "確定"
+# navml/widgets/dialog/commands.py:41
+"Help" = "說明"
+# navml/widgets/dialog/commands.py:55
+"Next tab" = "下一標籤頁"
+# navml/widgets/dialog/commands.py:61
+"Previous tab" = "上一標籤頁"
+# navml/widgets/dialog/commands.py:74
+"Search" = "搜尋"
+# navml/widgets/dialog/commands.py:92
+"Cut" = "剪下"
+# navml/widgets/dialog/commands.py:98
+"Copy" = "複製"
+# navml/widgets/dialog/commands.py:104
+"Paste" = "貼上"
+# navml/widgets/dialog/commands.py:110
+"Clear" = "清除"
+# navml/widgets/dialog/commands.py:120
+"Select all" = "全選"
+# navml/widgets/dialog/commands.py:133
+"Previous month" = "上個月"
+# navml/widgets/dialog/commands.py:139
+"Next month" = "下個月"
+# navml/widgets/dialog/commands.py:145
+"Previous year" = "上一年"
+# navml/widgets/dialog/commands.py:151
+"Next year" = "下一年"
+# navml/widgets/dialog/commands.py:157
+"Choose month" = "選擇月份"
+# navml/widgets/dialog/commands.py:163
+"Choose year" = "選擇年份"
+# navml/widgets/dialog/commands.py:169
+"Go to current date" = "跳至今天"
+# navml/widgets/dialog/commands.py:178
+"Calendar system" = "曆法"
+# navml/widgets/dialog/commands.py:190
+"Calendar view" = "曆法顯示"
+# navml/widgets/dialog/commands.py:200
+"Swap calendars" = "切換曆法"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Mo" = "一"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Tu" = "二"
+# navml/widgets/dialog/date_button/date_button.py:106
+"We" = "三"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Th" = "四"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Fr" = "五"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Sa" = "六"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Su" = "日"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "星期一"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "星期二"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "星期三"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "星期四"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "星期五"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "星期六"
+# navml/widgets/dialog/date_button/date_button.py:112
+"Sunday" = "星期日"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Month" = "月"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Year" = "年"
+# navml/widgets/dialog/date_button/date_button.py:426
+"Choose" = "選擇"
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
+"Today" = "今天"
+# navml/widgets/dialog/date_button/date_button.py:460
+"The month before" = "上個月"
+# navml/widgets/dialog/date_button/date_button.py:462
+"The month after" = "下個月"
+# navml/widgets/dialog/date_button/date_button.py:464
+"A click chooses the month" = "按一下選擇月份"
+# navml/widgets/dialog/date_button/date_button.py:466
+"A click chooses the year" = "按一下選擇年份"
+# navml/widgets/dialog/date_button/date_button.py:473
+"{weekday}, {date}, week {week}" = "{weekday}，{date}，第 {week} 週"
+# navml/widgets/dialog/date_button/date_button.py:484
+"{n} day from today" = ["{n} 天後"]
+# navml/widgets/dialog/date_button/date_button.py:486
+"{n} day ago" = ["{n} 天前"]
+# navml/widgets/dialog/dialog/dialog.py:290
+"Enter accepts, Escape dismisses." = "Enter 確認，Esc 取消。"
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
+"Invalid file name." = "無效的檔名。"
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
+"Invalid drive or directory." = "無效的磁碟機或目錄。"
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
+"Error" = "錯誤"
+# navml/widgets/dialog/file_list/file_list.py:213
+"Directory" = "目錄"
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+" Search: " = " 搜尋: "
+# navml/widgets/dialog/history/history.py:114
+"Choose from the list ({key})" = "從清單中選擇 ({key})"
+# navml/widgets/dialog/history/history.py:116
+"Earlier entries ({key})" = "先前的項目 ({key})"
+# navml/widgets/dialog/input_line/input_line.py:418
+"The line cannot be changed now" = "此行現在無法更改"
+# navml/widgets/dialog/input_line/input_line.py:449
+"Cu~t~" = "剪下(~T~)"
+# navml/widgets/dialog/input_line/input_line.py:450
+"~C~opy" = "複製(~C~)"
+# navml/widgets/dialog/input_line/input_line.py:451
+"~P~aste" = "貼上(~P~)"
+# navml/widgets/dialog/input_line/input_line.py:452
+"C~l~ear" = "清除(~L~)"
+# navml/widgets/dialog/input_line/input_line.py:454
+"Select ~a~ll" = "全選(~A~)"
+# navml/widgets/dialog/input_line/input_line.py:420
+"Nothing is selected" = "未選擇任何內容"
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
+"The line is empty" = "此行為空"
+# navml/widgets/dialog/input_line/input_line.py:427
+"All of it is selected" = "已全部選取"
+# navml/widgets/dialog/tab_view/tab_view.py:153
+"Tabs" = "標籤頁"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Earlier tabs" = "前面的標籤頁"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Later tabs" = "後面的標籤頁"
+# navml/widgets/dialog/tree_view/tree_view.py:582
+"Next" = "下一個"
+# navml/widgets/menu/commands.py:14
+"Menu" = "選單"
+# navml/widgets/progress_bar/progress_bar.py:64
+"{done} of {total} done ({percent}%), {rest} to go" = "已完成 {done}/{total} ({percent}%)，剩餘 {rest}"
+# navml/widgets/window/window.py:340
+"A double click zooms, a drag moves" = "按兩下縮放，拖曳移動"
+# navml/widgets/window/window.py:342
+"A drag moves" = "拖曳移動"
+# navml/widgets/window/window.py:381
+"Move" = "移動"
+# navml/widgets/window/window.py:381
+"Size" = "大小"
+# navml/widgets/window/window.py:381
+"Keep" = "保留"
+# navml/widgets/window/window.py:381
+"Undo" = "復原"
+# navml/widgets/window/window.py:320
+"Restore" = "還原"
+# navml/widgets/window/window.py:322
+"Drag to resize" = "拖曳調整大小"

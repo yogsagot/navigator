@@ -388,6 +388,31 @@ def _slavic(n: int) -> int:
     return 2
 
 
+def _polish(n: int) -> int:
+    # one, few (..2-..4 but not ..12-..14), many: "1 plik", "2 pliki",
+    # "5 plików", "22 pliki".
+    if n == 1:
+        return 0
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return 1
+    return 2
+
+
+def _czech(n: int) -> int:
+    # one, few (2-4), other: "1 soubor", "2 soubory", "5 souborů".
+    if n == 1:
+        return 0
+    if 2 <= n <= 4:
+        return 1
+    return 2
+
+
+def _french(n: int) -> int:
+    # one (0 and 1), other: "0 fichier", "1 fichier", "2 fichiers"; Brazilian
+    # Portuguese counts the same way.
+    return 0 if n in (0, 1) else 1
+
+
 def _hebrew(n: int) -> int:
     # one, two, other: "קובץ אחד", "שני קבצים", "5 קבצים".
     if n == 1:
@@ -420,6 +445,10 @@ PLURAL_RULES: dict[str, Callable[[int], int]] = {
     "ru": _slavic,
     "uk": _slavic,
     "be": _slavic,
+    "pl": _polish,
+    "cs": _czech,
+    "fr": _french,
+    "pt": _french,
     "he": _hebrew,
     "ar": _arabic,
     "ja": _single,

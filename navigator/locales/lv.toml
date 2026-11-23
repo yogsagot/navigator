@@ -2242,7 +2242,7 @@ flag = "LV"
 # navigator/widgets/shell/main_menu/main_menu.nml:195
 "Ex~t~ract archive..." = "~A~tpakot arhīvu..."
 # navigator/widgets/shell/main_menu/main_menu.nml:200, navigator/widgets/manager/panel/mouse.py:272
-"E~x~tract to..." = "Izvilkt uz..."
+"E~x~tract to..." = "~I~zvilkt uz..."
 # navigator/widgets/shell/main_menu/main_menu.nml:202, navigator/widgets/manager/manager/archives.py:257
 "Test archive" = "Pārbaudīt arhīvu"
 # navigator/widgets/shell/main_menu/main_menu.nml:204

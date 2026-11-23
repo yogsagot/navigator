@@ -150,6 +150,19 @@ def test_russian_rule():
     assert [plural_form("ru", n) for n in (1, 2, 5, 11, 21, 22, 25)] == [0, 1, 2, 2, 0, 1, 2]
 
 
+def test_polish_rule():
+    assert [plural_form("pl", n) for n in (1, 2, 4, 5, 12, 14, 21, 22, 25, 112)] == [0, 1, 1, 2, 2, 2, 2, 1, 2, 2]
+
+
+def test_czech_rule():
+    assert [plural_form("cs", n) for n in (0, 1, 2, 4, 5, 22)] == [2, 0, 1, 1, 2, 2]
+
+
+def test_french_and_portuguese_count_zero_as_one():
+    for code in ("fr", "pt", "pt_BR"):
+        assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [0, 0, 1, 1]
+
+
 def test_hebrew_rule():
     assert [plural_form("he", n) for n in (1, 2, 3, 10, 22)] == [0, 1, 2, 2, 2]
 
