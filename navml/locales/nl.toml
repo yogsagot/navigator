@@ -1,5 +1,6 @@
 [meta]
 name = "Nederlands"
+flag = "NL"
 
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:90
