@@ -1,0 +1,805 @@
+[meta]
+name = "Български"
+flag = "BG"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:90
+"~Y~es" = "~Д~а"
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
+"O~K~" = "O~K~"
+# navml/widgets/dialog/dialog/dialog.nml:96
+"~N~o" = "~Н~е"
+# navml/widgets/dialog/dialog/dialog.nml:103
+"~C~ancel" = "~О~тказ"
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
+"~H~elp" = "По~м~ощ"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
+"Open file" = "Отваряне на файл"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
+"~N~ame" = "~И~ме"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
+"~D~irectories" = "~П~апки"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
+"~F~iles" = "~Ф~айлове"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
+"Cancel" = "Отказ"
+# navml/widgets/window_manager/window_manager.nml:19
+"Windows Manager" = "Диспечер на прозорци"
+# navml/widgets/window_manager/window_manager.nml:26
+"~W~indows" = "~П~розорци"
+# navml/widgets/window_manager/window_manager.nml:55
+"C~l~ose" = "~З~атваряне"
+# navml/calendars.py:75
+"January" = "януари"
+# navml/calendars.py:75
+"February" = "февруари"
+# navml/calendars.py:75
+"March" = "март"
+# navml/calendars.py:75
+"April" = "април"
+# navml/calendars.py:75
+"May" = "май"
+# navml/calendars.py:75
+"June" = "юни"
+# navml/calendars.py:76
+"July" = "юли"
+# navml/calendars.py:76
+"August" = "август"
+# navml/calendars.py:76
+"September" = "септември"
+# navml/calendars.py:76
+"October" = "октомври"
+# navml/calendars.py:76
+"November" = "ноември"
+# navml/calendars.py:77
+"December" = "декември"
+# navml/calendars.py:274
+"~G~regorian" = "~Г~ригориански"
+# navml/calendars.py:300
+"~J~ulian" = "~Ю~лиански"
+# navml/calendars.py:343
+"~H~ebrew" = "~Е~врейски"
+# navml/calendars.py:438
+"~I~slamic (tabular)" = "~И~слямски (табличен)"
+# navml/calendars.py:527
+"Islamic (~U~mm al-Qura)" = "Ислямски (~У~мм ал-Кура)"
+# navml/calendars.py:544
+"Islamic (Di~y~anet, Turkey)" = "Ислямски (Дия~н~ет, Турция)"
+# navml/calendars.py:559
+"Islamic (~M~ABIMS, Indonesia)" = "Ислямски (~М~АБИМС, Индонезия)"
+# navml/calendars.py:574
+"Islamic (MABIMS, Malay~s~ia)" = "Ислямски (МАБИМС, Мал~а~йзия)"
+# navml/calendars.py:591
+"~P~ersian" = "~П~ерсийски"
+# navml/calendars.py:640
+"In~d~ian national (Saka)" = "Ин~д~ийски национален (Сака)"
+# navml/calendars.py:687
+"~C~optic" = "~К~оптски"
+# navml/calendars.py:732
+"~E~thiopian" = "~Е~тиопски"
+# navml/calendars.py:767
+"Chi~n~ese" = "Кит~а~йски"
+# navml/calendars.py:865
+"Spring Festival" = "Пролетен празник"
+# navml/calendars.py:881
+"~K~orean" = "К~о~рейски"
+# navml/calendars.py:884
+"Seollal" = "Сеоллал"
+# navml/calendars.py:898
+"~V~ietnamese" = "~В~иетнамски"
+# navml/calendars.py:906
+"Tết" = "Тет"
+# navml/calendars.py:930
+"J~a~panese" = "~Я~понски"
+# navml/calendars.py:968
+"~T~hai solar" = "~Т~айландски слънчев"
+# navml/calendars.py:986
+"~R~OC (Minguo)" = "~Р~ОК (Мингуо)"
+# navml/calendars.py:1009
+"~B~engali (Bangladesh)" = "~Б~енгалски (Бангладеш)"
+# navml/calendars.py:1064
+"Nepa~l~i (Bikram Sambat)" = "Непа~л~ски (Бикрам Самбат)"
+# navml/calendars.py:1124
+"Badíʿ (Baháʼí)" = "Бадиʿ (Бахаʼí)"
+# navml/calendars.py:1201
+"Burmese (Myanmar)" = "Бирмански (Мианмар)"
+# navml/calendars.py:1336
+"Tibetan (Phugpa)" = "Тибетски (Пхугпа)"
+# navml/calendars.py:1484
+"A~f~ghan Solar Hijri" = "А~ф~гански слънчев хиджри"
+# navml/calendars.py:1516
+"Khmer, Thai, La~o~ lunar" = "Кхмерски, тайландски, ла~о~ски лунен"
+# navml/calendars.py:404
+"Nisan" = "Нисан"
+# navml/calendars.py:404
+"Iyyar" = "Ияр"
+# navml/calendars.py:404
+"Sivan" = "Сиван"
+# navml/calendars.py:404
+"Tammuz" = "Тамуз"
+# navml/calendars.py:404
+"Av" = "Ав"
+# navml/calendars.py:404
+"Elul" = "Елул"
+# navml/calendars.py:405
+"Tishri" = "Тишри"
+# navml/calendars.py:405
+"Heshvan" = "Хешван"
+# navml/calendars.py:405
+"Kislev" = "Кислев"
+# navml/calendars.py:405
+"Tevet" = "Тевет"
+# navml/calendars.py:405
+"Shevat" = "Шват"
+# navml/calendars.py:406
+"Adar II" = "Адар II"
+# navml/calendars.py:460
+"Muharram" = "Мухарам"
+# navml/calendars.py:460
+"Safar" = "Сафар"
+# navml/calendars.py:460
+"Rabi' I" = "Раби I"
+# navml/calendars.py:460
+"Rabi' II" = "Раби II"
+# navml/calendars.py:460
+"Jumada I" = "Джумада I"
+# navml/calendars.py:460
+"Jumada II" = "Джумада II"
+# navml/calendars.py:461
+"Rajab" = "Раджаб"
+# navml/calendars.py:461
+"Sha'ban" = "Шабан"
+# navml/calendars.py:461
+"Ramadan" = "Рамадан"
+# navml/calendars.py:461
+"Shawwal" = "Шавал"
+# navml/calendars.py:461
+"Dhu'l-Qa'da" = "Зул-када"
+# navml/calendars.py:461
+"Dhu'l-Hijja" = "Зул-хиджа"
+# navml/calendars.py:627
+"Farvardin" = "Фарвардин"
+# navml/calendars.py:627
+"Ordibehesht" = "Ордибехешт"
+# navml/calendars.py:627
+"Khordad" = "Хордад"
+# navml/calendars.py:627
+"Tir" = "Тир"
+# navml/calendars.py:627
+"Mordad" = "Мордад"
+# navml/calendars.py:627
+"Shahrivar" = "Шахривар"
+# navml/calendars.py:628
+"Mehr" = "Мехр"
+# navml/calendars.py:628
+"Aban" = "Абан"
+# navml/calendars.py:628
+"Azar" = "Азар"
+# navml/calendars.py:628
+"Dey" = "Дей"
+# navml/calendars.py:628
+"Bahman" = "Бахман"
+# navml/calendars.py:628
+"Esfand" = "Есфанд"
+# navml/calendars.py:672
+"Chaitra" = "Чаитра"
+# navml/calendars.py:672
+"Vaishakha" = "Ваишаха"
+# navml/calendars.py:672
+"Jyeshtha" = "Джешта"
+# navml/calendars.py:672
+"Ashadha" = "Ашада"
+# navml/calendars.py:672
+"Shravana" = "Шравана"
+# navml/calendars.py:672
+"Bhadra" = "Бхадра"
+# navml/calendars.py:673
+"Ashvin" = "Ашвин"
+# navml/calendars.py:673
+"Kartika" = "Картика"
+# navml/calendars.py:673
+"Agrahayana" = "Аграхаяна"
+# navml/calendars.py:673
+"Pausha" = "Пауша"
+# navml/calendars.py:673
+"Magha" = "Мага"
+# navml/calendars.py:673
+"Phalguna" = "Фалгуна"
+# navml/calendars.py:717
+"Thout" = "Тоут"
+# navml/calendars.py:717
+"Paopi" = "Паопи"
+# navml/calendars.py:717
+"Hathor" = "Хатор"
+# navml/calendars.py:717
+"Koiak" = "Коияк"
+# navml/calendars.py:717
+"Tobi" = "Тоби"
+# navml/calendars.py:717
+"Meshir" = "Мешир"
+# navml/calendars.py:717
+"Paremhat" = "Паремхат"
+# navml/calendars.py:718
+"Parmouti" = "Пармоути"
+# navml/calendars.py:718
+"Pashons" = "Пашонс"
+# navml/calendars.py:718
+"Paoni" = "Паони"
+# navml/calendars.py:718
+"Epip" = "Епип"
+# navml/calendars.py:718
+"Mesori" = "Месори"
+# navml/calendars.py:718
+"Nasie" = "Насие"
+# navml/calendars.py:742
+"Meskerem" = "Мескерем"
+# navml/calendars.py:742
+"Tikimt" = "Тикимт"
+# navml/calendars.py:742
+"Hidar" = "Хидар"
+# navml/calendars.py:742
+"Tahsas" = "Тахсас"
+# navml/calendars.py:742
+"Ter" = "Тер"
+# navml/calendars.py:742
+"Yekatit" = "Екатит"
+# navml/calendars.py:742
+"Megabit" = "Мегабит"
+# navml/calendars.py:743
+"Miyazya" = "Миязя"
+# navml/calendars.py:743
+"Ginbot" = "Гинбот"
+# navml/calendars.py:743
+"Sene" = "Сене"
+# navml/calendars.py:743
+"Hamle" = "Хамле"
+# navml/calendars.py:743
+"Nehase" = "Нехасе"
+# navml/calendars.py:743
+"Pagume" = "Пагуме"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 1" = "Месец 1"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 2" = "Месец 2"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 3" = "Месец 3"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 4" = "Месец 4"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 5" = "Месец 5"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 6" = "Месец 6"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 7" = "Месец 7"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 8" = "Месец 8"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 9" = "Месец 9"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 10" = "Месец 10"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 11" = "Месец 11"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 12" = "Месец 12"
+# navml/calendars.py:848
+"Jiǎ" = "Джия"
+# navml/calendars.py:848
+"Yǐ" = "Йи"
+# navml/calendars.py:848
+"Bǐng" = "Бинг"
+# navml/calendars.py:848
+"Dīng" = "Динг"
+# navml/calendars.py:848
+"Wù" = "Ву"
+# navml/calendars.py:848
+"Jǐ" = "Джи"
+# navml/calendars.py:848
+"Gēng" = "Генг"
+# navml/calendars.py:848
+"Xīn" = "Ксин"
+# navml/calendars.py:849
+"Rén" = "Рен"
+# navml/calendars.py:849
+"Guǐ" = "Гуи"
+# navml/calendars.py:850
+"Zǐ" = "Зи"
+# navml/calendars.py:850
+"Chǒu" = "Чоу"
+# navml/calendars.py:850
+"Yín" = "Йин"
+# navml/calendars.py:850
+"Mǎo" = "Мао"
+# navml/calendars.py:850
+"Chén" = "Чен"
+# navml/calendars.py:850
+"Sì" = "Си"
+# navml/calendars.py:850
+"Wǔ" = "Ву"
+# navml/calendars.py:850
+"Wèi" = "Веи"
+# navml/calendars.py:851
+"Shēn" = "Шен"
+# navml/calendars.py:851
+"Yǒu" = "Йоу"
+# navml/calendars.py:851
+"Xū" = "Ксу"
+# navml/calendars.py:851
+"Hài" = "Хаи"
+# navml/calendars.py:861
+"Rat" = "Плъх"
+# navml/calendars.py:861
+"Ox" = "Бивол"
+# navml/calendars.py:861
+"Tiger" = "Тигър"
+# navml/calendars.py:861
+"Rabbit" = "Заек"
+# navml/calendars.py:861
+"Dragon" = "Дракон"
+# navml/calendars.py:861
+"Snake" = "Змия"
+# navml/calendars.py:861
+"Horse" = "Кон"
+# navml/calendars.py:862
+"Goat" = "Коза"
+# navml/calendars.py:862
+"Monkey" = "Маймуна"
+# navml/calendars.py:862
+"Rooster" = "Петел"
+# navml/calendars.py:862
+"Dog" = "Куче"
+# navml/calendars.py:862
+"Pig" = "Прасе"
+# navml/calendars.py:902
+"Buffalo" = "Воден бивол"
+# navml/calendars.py:902
+"Cat" = "Котка"
+# navml/calendars.py:940
+"Meiji" = "Меиджи"
+# navml/calendars.py:940
+"Taishō" = "Таишо"
+# navml/calendars.py:940
+"Shōwa" = "Шова"
+# navml/calendars.py:940
+"Heisei" = "Хеисеи"
+# navml/calendars.py:940
+"Reiwa" = "Реива"
+# navml/calendars.py:1042
+"Boishakh" = "Боишах"
+# navml/calendars.py:1042
+"Joishtho" = "Джоишто"
+# navml/calendars.py:1042
+"Asharh" = "Ашарх"
+# navml/calendars.py:1042
+"Shrabon" = "Шрабон"
+# navml/calendars.py:1042
+"Bhadro" = "Бхадро"
+# navml/calendars.py:1042
+"Ashwin" = "Ашвин"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Kartik" = "Картик"
+# navml/calendars.py:1043
+"Ogrohayon" = "Огрохайон"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Poush" = "Поуш"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Magh" = "Маг"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Falgun" = "Фалгун"
+# navml/calendars.py:1043
+"Choitro" = "Чоитро"
+# navml/calendars.py:1100
+"Baisakh" = "Баисах"
+# navml/calendars.py:1100
+"Jestha" = "Джеста"
+# navml/calendars.py:1100
+"Asar" = "Асар"
+# navml/calendars.py:1100
+"Shrawan" = "Шраван"
+# navml/calendars.py:1100
+"Bhadau" = "Бхадау"
+# navml/calendars.py:1100
+"Asoj" = "Асодж"
+# navml/calendars.py:1101
+"Mangsir" = "Мангсир"
+# navml/calendars.py:1101
+"Chait" = "Чаит"
+# navml/calendars.py:1106
+"Computed: Nepal's almanac may differ by a day" = "Изчислено: непалският алманах може да се различава с ден"
+# navml/calendars.py:1169
+"Bahá" = "Баха"
+# navml/calendars.py:1169
+"Jalál" = "Джалал"
+# navml/calendars.py:1169
+"Jamál" = "Джамал"
+# navml/calendars.py:1169
+"ʿAẓamat" = "Азамат"
+# navml/calendars.py:1169
+"Núr" = "Нур"
+# navml/calendars.py:1169
+"Raḥmat" = "Рахмат"
+# navml/calendars.py:1169
+"Kalimát" = "Калимат"
+# navml/calendars.py:1170
+"Kamál" = "Камал"
+# navml/calendars.py:1170
+"Asmáʼ" = "Асмаʼ"
+# navml/calendars.py:1170
+"ʿIzzat" = "Иззат"
+# navml/calendars.py:1170
+"Mashíyyat" = "Машийят"
+# navml/calendars.py:1170
+"ʿIlm" = "Илм"
+# navml/calendars.py:1170
+"Qudrat" = "Кудрат"
+# navml/calendars.py:1170
+"Qawl" = "Кавл"
+# navml/calendars.py:1171
+"Masáʼil" = "Масаʼil"
+# navml/calendars.py:1171
+"Sharaf" = "Шараф"
+# navml/calendars.py:1171
+"Sulṭán" = "Султан"
+# navml/calendars.py:1171
+"Mulk" = "Мулк"
+# navml/calendars.py:1171
+"Ayyám-i-Há" = "Айям-и-Ха"
+# navml/calendars.py:1171
+"ʿAláʼ" = "Алаʼ"
+# navml/calendars.py:1295
+"Tagu" = "Тагу"
+# navml/calendars.py:1295
+"Kason" = "Касон"
+# navml/calendars.py:1295
+"Nayon" = "Найон"
+# navml/calendars.py:1295
+"First Waso" = "Първи Васо"
+# navml/calendars.py:1295
+"Waso" = "Васо"
+# navml/calendars.py:1295
+"Wagaung" = "Вагаунг"
+# navml/calendars.py:1296
+"Tawthalin" = "Тавталин"
+# navml/calendars.py:1296
+"Thadingyut" = "Тадингют"
+# navml/calendars.py:1296
+"Tazaungmon" = "Тазаунгмон"
+# navml/calendars.py:1296
+"Nadaw" = "Надав"
+# navml/calendars.py:1296
+"Pyatho" = "Пято"
+# navml/calendars.py:1297
+"Tabodwe" = "Табодве"
+# navml/calendars.py:1297
+"Tabaung" = "Табаунг"
+# navml/calendars.py:1300
+"Second Waso" = "Втори Васо"
+# navml/calendars.py:1456
+"Wood" = "Дърво"
+# navml/calendars.py:1456
+"Fire" = "Огън"
+# navml/calendars.py:1456
+"Earth" = "Земя"
+# navml/calendars.py:1456
+"Iron" = "Желязо"
+# navml/calendars.py:1456
+"Water" = "Вода"
+# navml/calendars.py:1488
+"Hamal" = "Хамал"
+# navml/calendars.py:1488
+"Sawr" = "Савр"
+# navml/calendars.py:1488
+"Jawza" = "Джавза"
+# navml/calendars.py:1488
+"Saratan" = "Саратан"
+# navml/calendars.py:1488
+"Asad" = "Асад"
+# navml/calendars.py:1488
+"Sonbola" = "Сонбола"
+# navml/calendars.py:1489
+"Mizan" = "Мизан"
+# navml/calendars.py:1489
+"Aqrab" = "Акраб"
+# navml/calendars.py:1489
+"Qaws" = "Кавс"
+# navml/calendars.py:1489
+"Jadi" = "Джади"
+# navml/calendars.py:1489
+"Dalw" = "Далв"
+# navml/calendars.py:1489
+"Hut" = "Хут"
+# navml/calendars.py:1657
+"Pisakh" = "Писах"
+# navml/calendars.py:1657
+"Jesth" = "Джест"
+# navml/calendars.py:1657
+"Asadh" = "Асад"
+# navml/calendars.py:1658
+"Pathamasadh" = "Патамасад"
+# navml/calendars.py:1658
+"Tutiyasadh" = "Тутиясад"
+# navml/calendars.py:1658
+"Srap" = "Срап"
+# navml/calendars.py:1659
+"Phatrabot" = "Фатработ"
+# navml/calendars.py:1659
+"Assoch" = "Ассоч"
+# navml/calendars.py:1659
+"Kadeuk" = "Кадеук"
+# navml/calendars.py:1660
+"Migasir" = "Мигасир"
+# navml/calendars.py:1660
+"Boss" = "Босс"
+# navml/calendars.py:1660
+"Meak" = "Меак"
+# navml/calendars.py:1660
+"Phalkun" = "Фалкун"
+# navml/calendars.py:1661
+"Cheit" = "Чеит"
+# navml/calendars.py:261
+"{day} {month} {year}" = "{day} {month} {year}"
+# navml/calendars.py:324
+"Easter (Orthodox)" = "Великден (православен)"
+# navml/calendars.py:326
+"Easter (Western)" = "Великден (западен)"
+# navml/calendars.py:406
+"Adar I" = "Адар I"
+# navml/calendars.py:406
+"Adar" = "Адар"
+# navml/calendars.py:511
+"Computed: the published calendar may differ by a day" = "Изчислено: публикуваният календар може да се различава с ден"
+# navml/calendars.py:853
+"{stem}-{branch}, year of the {animal}" = "{stem}-{branch}, година на {animal}"
+# navml/calendars.py:954, navml/calendars.py:975, navml/calendars.py:995
+"{label} ({year})" = "{label} ({year})"
+# navml/calendars.py:1176
+"Naw-Rúz" = "Нав-Руз"
+# navml/calendars.py:1178
+"Computed: not yet published by the Baháʼí World Centre" = "Изчислено: още не е публикувано от Бахайския световен център"
+# navml/calendars.py:1309, navml/calendars.py:1674
+"Full moon" = "Пълнолуние"
+# navml/calendars.py:1461
+"Losar" = "Лосар"
+# navml/calendars.py:1464
+"Doubled day" = "Удвоен ден"
+# navml/calendars.py:950
+"{era} {year}" = "{era} {year}"
+# navml/calendars.py:972
+"{year} BE" = "{year} BE"
+# navml/calendars.py:992
+"{year} before ROC" = "{year} преди РК"
+# navml/calendars.py:1311, navml/calendars.py:1691
+"New moon" = "Новолуние"
+# navml/calendars.py:1468
+"{element} {animal} year" = "Година: {animal} ({element})"
+# navml/calendars.py:1677
+"Asalha Puja" = "Асалха Пуджа"
+# navml/calendars.py:830, navml/calendars.py:1449
+"Leap {number}" = "Високосен {number}"
+# navml/calendars.py:991
+"ROC {year}" = "РК {year}"
+# navml/calendars.py:1467
+"Day {number} is skipped" = "Ден {number} се пропуска"
+# navml/calendars.py:1679
+"Magha Puja" = "Мага Пуджа"
+# navml/calendars.py:1315
+"Myanmar New Year's Day, {year} ME" = "Мианмарска Нова година, {year} ME"
+# navml/calendars.py:1681
+"Vesak" = "Весак"
+# navml/calendars.py:1683
+"Magha Puja (Cambodia)" = "Магха Пуджа (Камбоджа)"
+# navml/calendars.py:1685
+"Magha Puja (Thailand, Laos)" = "Магха Пуджа (Тайланд, Лаос)"
+# navml/calendars.py:1687
+"Vesak (Cambodia)" = "Весак (Камбоджа)"
+# navml/calendars.py:1689
+"Vesak (Thailand, Laos)" = "Весак (Тайланд, Лаос)"
+# navml/commands.py:30, navml/widgets/window/window.py:318
+"Close" = "Затваряне"
+# navml/commands.py:36, navml/widgets/window/window.py:320
+"Zoom" = "Увеличаване"
+# navml/commands.py:76
+"List" = "Списък"
+# navml/commands.py:86
+"Tile" = "Плочки"
+# navml/commands.py:95
+"Cascade" = "Каскада"
+# navml/commands.py:105
+"Close all" = "Затваряне на всички"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "Няма отворен прозорец"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "Няма прозорец за подреждане"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "Няма прозорец за затваряне"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "Този прозорец не може да се увеличи"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "Този прозорец не може да се затвори"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "Няма прозорец с номер {number}"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "Черно"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "Синьо"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "Зелено"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "Циан"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "Червено"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "Магента"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "Кафяво"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "Светлосиво"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "Тъмносиво"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "Светлосиньо"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "Светлозелено"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "Светъл циан"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "Светлочервено"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "Светла магента"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "Жълто"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "Бяло"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " Текст "
+# navml/widgets/dialog/commands.py:27
+"OK" = "OK"
+# navml/widgets/dialog/commands.py:41
+"Help" = "Помощ"
+# navml/widgets/dialog/commands.py:55
+"Next tab" = "Следващ раздел"
+# navml/widgets/dialog/commands.py:61
+"Previous tab" = "Предишен раздел"
+# navml/widgets/dialog/commands.py:74
+"Search" = "Търсене"
+# navml/widgets/dialog/commands.py:92
+"Cut" = "Изрязв."
+# navml/widgets/dialog/commands.py:98
+"Copy" = "Копие"
+# navml/widgets/dialog/commands.py:104
+"Paste" = "Постав."
+# navml/widgets/dialog/commands.py:110
+"Clear" = "Изчист."
+# navml/widgets/dialog/commands.py:120
+"Select all" = "Избор на всичко"
+# navml/widgets/dialog/commands.py:133
+"Previous month" = "Предишен месец"
+# navml/widgets/dialog/commands.py:139
+"Next month" = "Следващ месец"
+# navml/widgets/dialog/commands.py:145
+"Previous year" = "Предишна година"
+# navml/widgets/dialog/commands.py:151
+"Next year" = "Следваща година"
+# navml/widgets/dialog/commands.py:157
+"Choose month" = "Избор на месец"
+# navml/widgets/dialog/commands.py:163
+"Choose year" = "Избор на година"
+# navml/widgets/dialog/commands.py:169
+"Go to current date" = "Към днешна дата"
+# navml/widgets/dialog/commands.py:178
+"Calendar system" = "Календарна система"
+# navml/widgets/dialog/commands.py:190
+"Calendar view" = "Изглед на календара"
+# navml/widgets/dialog/commands.py:200
+"Swap calendars" = "Размяна на календарите"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Mo" = "Пн"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Tu" = "Вт"
+# navml/widgets/dialog/date_button/date_button.py:106
+"We" = "Ср"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Th" = "Чт"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Fr" = "Пт"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Sa" = "Сб"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Su" = "Нд"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "понеделник"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "вторник"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "сряда"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "четвъртък"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "петък"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "събота"
+# navml/widgets/dialog/date_button/date_button.py:112
+"Sunday" = "неделя"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Month" = "Месец"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Year" = "Година"
+# navml/widgets/dialog/date_button/date_button.py:426
+"Choose" = "Избор"
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
+"Today" = "Днес"
+# navml/widgets/dialog/date_button/date_button.py:460
+"The month before" = "Предишният месец"
+# navml/widgets/dialog/date_button/date_button.py:462
+"The month after" = "Следващият месец"
+# navml/widgets/dialog/date_button/date_button.py:464
+"A click chooses the month" = "Щракване избира месеца"
+# navml/widgets/dialog/date_button/date_button.py:466
+"A click chooses the year" = "Щракване избира годината"
+# navml/widgets/dialog/date_button/date_button.py:473
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, седмица {week}"
+# navml/widgets/dialog/date_button/date_button.py:484
+"{n} day from today" = ["след {n} ден", "след {n} дни"]
+# navml/widgets/dialog/date_button/date_button.py:486
+"{n} day ago" = ["преди {n} ден", "преди {n} дни"]
+# navml/widgets/dialog/dialog/dialog.py:290
+"Enter accepts, Escape dismisses." = "Enter приема, Escape отхвърля."
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
+"Invalid file name." = "Невалидно име на файл."
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
+"Invalid drive or directory." = "Невалидно устройство или папка."
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
+"Error" = "Грешка"
+# navml/widgets/dialog/file_list/file_list.py:213
+"Directory" = "Папка"
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+" Search: " = " Търсене: "
+# navml/widgets/dialog/history/history.py:114
+"Choose from the list ({key})" = "Избор от списъка ({key})"
+# navml/widgets/dialog/history/history.py:116
+"Earlier entries ({key})" = "По-ранни записи ({key})"
+# navml/widgets/dialog/input_line/input_line.py:418
+"The line cannot be changed now" = "Редът не може да се промени сега"
+# navml/widgets/dialog/input_line/input_line.py:449
+"Cu~t~" = "~И~зрязване"
+# navml/widgets/dialog/input_line/input_line.py:450
+"~C~opy" = "~К~опиране"
+# navml/widgets/dialog/input_line/input_line.py:451
+"~P~aste" = "По~с~тавяне"
+# navml/widgets/dialog/input_line/input_line.py:452
+"C~l~ear" = "~Ч~истене"
+# navml/widgets/dialog/input_line/input_line.py:454
+"Select ~a~ll" = "Избор на ~в~сичко"
+# navml/widgets/dialog/input_line/input_line.py:420
+"Nothing is selected" = "Нищо не е избрано"
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
+"The line is empty" = "Редът е празен"
+# navml/widgets/dialog/input_line/input_line.py:427
+"All of it is selected" = "Всичко вече е избрано"
+# navml/widgets/dialog/tab_view/tab_view.py:153
+"Tabs" = "Раздели"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Earlier tabs" = "По-ранни раздели"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Later tabs" = "По-късни раздели"
+# navml/widgets/dialog/tree_view/tree_view.py:582
+"Next" = "Напред"
+# navml/widgets/menu/commands.py:14
+"Menu" = "Меню"
+# navml/widgets/progress_bar/progress_bar.py:64
+"{done} of {total} done ({percent}%), {rest} to go" = "Готови {done} от {total} ({percent}%), остават {rest}"
+# navml/widgets/window/window.py:340
+"A double click zooms, a drag moves" = "Двойно щракване увеличава, плъзгане мести"
+# navml/widgets/window/window.py:342
+"A drag moves" = "Плъзгане мести"
+# navml/widgets/window/window.py:381
+"Move" = "Мести"
+# navml/widgets/window/window.py:381
+"Size" = "Размер"
+# navml/widgets/window/window.py:381
+"Keep" = "Запази"
+# navml/widgets/window/window.py:381
+"Undo" = "Отмяна"
+# navml/widgets/window/window.py:320
+"Restore" = "Възстан."
+# navml/widgets/window/window.py:322
+"Drag to resize" = "Плъзнете за промяна на размера"
