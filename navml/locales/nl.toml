@@ -1,0 +1,804 @@
+[meta]
+name = "Nederlands"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:90
+"~Y~es" = "~J~a"
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
+"O~K~" = "O~K~"
+# navml/widgets/dialog/dialog/dialog.nml:96
+"~N~o" = "~N~ee"
+# navml/widgets/dialog/dialog/dialog.nml:103
+"~C~ancel" = "~A~nnuleren"
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
+"~H~elp" = "~H~elp"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
+"Open file" = "Bestand openen"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
+"~N~ame" = "~N~aam"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
+"~D~irectories" = "~M~appen"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
+"~F~iles" = "~B~estanden"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
+"Cancel" = "Annuleren"
+# navml/widgets/window_manager/window_manager.nml:19
+"Windows Manager" = "Vensterbeheer"
+# navml/widgets/window_manager/window_manager.nml:26
+"~W~indows" = "~V~ensters"
+# navml/widgets/window_manager/window_manager.nml:55
+"C~l~ose" = "~S~luiten"
+# navml/calendars.py:75
+"January" = "januari"
+# navml/calendars.py:75
+"February" = "februari"
+# navml/calendars.py:75
+"March" = "maart"
+# navml/calendars.py:75
+"April" = "April"
+# navml/calendars.py:75
+"May" = "mei"
+# navml/calendars.py:75
+"June" = "juni"
+# navml/calendars.py:76
+"July" = "juli"
+# navml/calendars.py:76
+"August" = "August"
+# navml/calendars.py:76
+"September" = "September"
+# navml/calendars.py:76
+"October" = "oktober"
+# navml/calendars.py:76
+"November" = "november"
+# navml/calendars.py:77
+"December" = "december"
+# navml/calendars.py:274
+"~G~regorian" = "~G~regoriaans"
+# navml/calendars.py:300
+"~J~ulian" = "~J~uliaans"
+# navml/calendars.py:343
+"~H~ebrew" = "~H~ebreeuws"
+# navml/calendars.py:438
+"~I~slamic (tabular)" = "~I~slamitisch (tabel)"
+# navml/calendars.py:527
+"Islamic (~U~mm al-Qura)" = "Islamitisch (~U~mm al-Qura)"
+# navml/calendars.py:544
+"Islamic (Di~y~anet, Turkey)" = "Islamitisch (Di~y~anet, Turkije)"
+# navml/calendars.py:559
+"Islamic (~M~ABIMS, Indonesia)" = "Islamitisch (~M~ABIMS, Indonesië)"
+# navml/calendars.py:574
+"Islamic (MABIMS, Malay~s~ia)" = "Islamitisch (MABIMS, Male~i~sië)"
+# navml/calendars.py:591
+"~P~ersian" = "~P~erzisch"
+# navml/calendars.py:640
+"In~d~ian national (Saka)" = "In~d~iaas nationaal (Saka)"
+# navml/calendars.py:687
+"~C~optic" = "~K~optisch"
+# navml/calendars.py:732
+"~E~thiopian" = "~E~thiopisch"
+# navml/calendars.py:767
+"Chi~n~ese" = "Chi~n~ees"
+# navml/calendars.py:865
+"Spring Festival" = "Lentefeest"
+# navml/calendars.py:881
+"~K~orean" = "K~o~reaans"
+# navml/calendars.py:884
+"Seollal" = "Seollal"
+# navml/calendars.py:898
+"~V~ietnamese" = "~V~ietnamees"
+# navml/calendars.py:906
+"Tết" = "Tết"
+# navml/calendars.py:930
+"J~a~panese" = "J~a~pans"
+# navml/calendars.py:968
+"~T~hai solar" = "~T~hais (zon)"
+# navml/calendars.py:986
+"~R~OC (Minguo)" = "~R~OC (Minguo)"
+# navml/calendars.py:1009
+"~B~engali (Bangladesh)" = "~B~engaals (Bangladesh)"
+# navml/calendars.py:1064
+"Nepa~l~i (Bikram Sambat)" = "Nepa~l~ees (Bikram Sambat)"
+# navml/calendars.py:1124
+"Badíʿ (Baháʼí)" = "Badíʿ (Baháʼí)"
+# navml/calendars.py:1201
+"Burmese (Myanmar)" = "Birmees (Myanmar)"
+# navml/calendars.py:1336
+"Tibetan (Phugpa)" = "Tibetaans (Phugpa)"
+# navml/calendars.py:1484
+"A~f~ghan Solar Hijri" = "A~f~ghaans (zonne-Hidjra)"
+# navml/calendars.py:1516
+"Khmer, Thai, La~o~ lunar" = "Khmer, Thai, La~o~ (maan)"
+# navml/calendars.py:404
+"Nisan" = "Nisan"
+# navml/calendars.py:404
+"Iyyar" = "Ijar"
+# navml/calendars.py:404
+"Sivan" = "Siwan"
+# navml/calendars.py:404
+"Tammuz" = "Tammoez"
+# navml/calendars.py:404
+"Av" = "Av"
+# navml/calendars.py:404
+"Elul" = "Elul"
+# navml/calendars.py:405
+"Tishri" = "Tisjri"
+# navml/calendars.py:405
+"Heshvan" = "Chesjwan"
+# navml/calendars.py:405
+"Kislev" = "Kislev"
+# navml/calendars.py:405
+"Tevet" = "Tevet"
+# navml/calendars.py:405
+"Shevat" = "Shevat"
+# navml/calendars.py:406
+"Adar II" = "Adar II"
+# navml/calendars.py:460
+"Muharram" = "Muharram"
+# navml/calendars.py:460
+"Safar" = "Safar"
+# navml/calendars.py:460
+"Rabi' I" = "Rabi' I"
+# navml/calendars.py:460
+"Rabi' II" = "Rabi' II"
+# navml/calendars.py:460
+"Jumada I" = "Jumada I"
+# navml/calendars.py:460
+"Jumada II" = "Jumada II"
+# navml/calendars.py:461
+"Rajab" = "Radjab"
+# navml/calendars.py:461
+"Sha'ban" = "Sja'ban"
+# navml/calendars.py:461
+"Ramadan" = "Ramadan"
+# navml/calendars.py:461
+"Shawwal" = "Sjawwal"
+# navml/calendars.py:461
+"Dhu'l-Qa'da" = "Dhu'l-Qa'da"
+# navml/calendars.py:461
+"Dhu'l-Hijja" = "Dhu'l-Hijja"
+# navml/calendars.py:627
+"Farvardin" = "Farvardin"
+# navml/calendars.py:627
+"Ordibehesht" = "Ordibehesht"
+# navml/calendars.py:627
+"Khordad" = "Chordad"
+# navml/calendars.py:627
+"Tir" = "Tir"
+# navml/calendars.py:627
+"Mordad" = "Mordad"
+# navml/calendars.py:627
+"Shahrivar" = "Shahrivar"
+# navml/calendars.py:628
+"Mehr" = "Mehr"
+# navml/calendars.py:628
+"Aban" = "Aban"
+# navml/calendars.py:628
+"Azar" = "Azar"
+# navml/calendars.py:628
+"Dey" = "Dey"
+# navml/calendars.py:628
+"Bahman" = "Bahman"
+# navml/calendars.py:628
+"Esfand" = "Esfand"
+# navml/calendars.py:672
+"Chaitra" = "Chaitra"
+# navml/calendars.py:672
+"Vaishakha" = "Vaishakha"
+# navml/calendars.py:672
+"Jyeshtha" = "Jyeshtha"
+# navml/calendars.py:672
+"Ashadha" = "Ashadha"
+# navml/calendars.py:672
+"Shravana" = "Shravana"
+# navml/calendars.py:672
+"Bhadra" = "Bhadra"
+# navml/calendars.py:673
+"Ashvin" = "Ashvin"
+# navml/calendars.py:673
+"Kartika" = "Kartika"
+# navml/calendars.py:673
+"Agrahayana" = "Agrahayana"
+# navml/calendars.py:673
+"Pausha" = "Pausha"
+# navml/calendars.py:673
+"Magha" = "Magha"
+# navml/calendars.py:673
+"Phalguna" = "Phalguna"
+# navml/calendars.py:717
+"Thout" = "Thout"
+# navml/calendars.py:717
+"Paopi" = "Paopi"
+# navml/calendars.py:717
+"Hathor" = "Hathor"
+# navml/calendars.py:717
+"Koiak" = "Koiak"
+# navml/calendars.py:717
+"Tobi" = "Tobi"
+# navml/calendars.py:717
+"Meshir" = "Meshir"
+# navml/calendars.py:717
+"Paremhat" = "Paremhat"
+# navml/calendars.py:718
+"Parmouti" = "Parmouti"
+# navml/calendars.py:718
+"Pashons" = "Pashons"
+# navml/calendars.py:718
+"Paoni" = "Paoni"
+# navml/calendars.py:718
+"Epip" = "Epip"
+# navml/calendars.py:718
+"Mesori" = "Mesori"
+# navml/calendars.py:718
+"Nasie" = "Nasie"
+# navml/calendars.py:742
+"Meskerem" = "Meskerem"
+# navml/calendars.py:742
+"Tikimt" = "Tikimt"
+# navml/calendars.py:742
+"Hidar" = "Hidar"
+# navml/calendars.py:742
+"Tahsas" = "Tahsas"
+# navml/calendars.py:742
+"Ter" = "Ter"
+# navml/calendars.py:742
+"Yekatit" = "Yekatit"
+# navml/calendars.py:742
+"Megabit" = "Megabit"
+# navml/calendars.py:743
+"Miyazya" = "Miyazya"
+# navml/calendars.py:743
+"Ginbot" = "Ginbot"
+# navml/calendars.py:743
+"Sene" = "Sene"
+# navml/calendars.py:743
+"Hamle" = "Hamle"
+# navml/calendars.py:743
+"Nehase" = "Nehase"
+# navml/calendars.py:743
+"Pagume" = "Pagume"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 1" = "Maand 1"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 2" = "Maand 2"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 3" = "Maand 3"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 4" = "Maand 4"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 5" = "Maand 5"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 6" = "Maand 6"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 7" = "Maand 7"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 8" = "Maand 8"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 9" = "Maand 9"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 10" = "Maand 10"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 11" = "Maand 11"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 12" = "Maand 12"
+# navml/calendars.py:848
+"Jiǎ" = "Jiǎ"
+# navml/calendars.py:848
+"Yǐ" = "Yǐ"
+# navml/calendars.py:848
+"Bǐng" = "Bǐng"
+# navml/calendars.py:848
+"Dīng" = "Dīng"
+# navml/calendars.py:848
+"Wù" = "Wù"
+# navml/calendars.py:848
+"Jǐ" = "Jǐ"
+# navml/calendars.py:848
+"Gēng" = "Gēng"
+# navml/calendars.py:848
+"Xīn" = "Xīn"
+# navml/calendars.py:849
+"Rén" = "Rén"
+# navml/calendars.py:849
+"Guǐ" = "Guǐ"
+# navml/calendars.py:850
+"Zǐ" = "Zǐ"
+# navml/calendars.py:850
+"Chǒu" = "Chǒu"
+# navml/calendars.py:850
+"Yín" = "Yín"
+# navml/calendars.py:850
+"Mǎo" = "Mǎo"
+# navml/calendars.py:850
+"Chén" = "Chén"
+# navml/calendars.py:850
+"Sì" = "Sì"
+# navml/calendars.py:850
+"Wǔ" = "Wǔ"
+# navml/calendars.py:850
+"Wèi" = "Wèi"
+# navml/calendars.py:851
+"Shēn" = "Shēn"
+# navml/calendars.py:851
+"Yǒu" = "Yǒu"
+# navml/calendars.py:851
+"Xū" = "Xū"
+# navml/calendars.py:851
+"Hài" = "Hài"
+# navml/calendars.py:861
+"Rat" = "Rat"
+# navml/calendars.py:861
+"Ox" = "Os"
+# navml/calendars.py:861
+"Tiger" = "Tiger"
+# navml/calendars.py:861
+"Rabbit" = "Konijn"
+# navml/calendars.py:861
+"Dragon" = "Draak"
+# navml/calendars.py:861
+"Snake" = "Slang"
+# navml/calendars.py:861
+"Horse" = "Paard"
+# navml/calendars.py:862
+"Goat" = "Geit"
+# navml/calendars.py:862
+"Monkey" = "Aap"
+# navml/calendars.py:862
+"Rooster" = "Haan"
+# navml/calendars.py:862
+"Dog" = "Hond"
+# navml/calendars.py:862
+"Pig" = "Varken"
+# navml/calendars.py:902
+"Buffalo" = "Waterbuffel"
+# navml/calendars.py:902
+"Cat" = "Kat"
+# navml/calendars.py:940
+"Meiji" = "Meiji"
+# navml/calendars.py:940
+"Taishō" = "Taishō"
+# navml/calendars.py:940
+"Shōwa" = "Shōwa"
+# navml/calendars.py:940
+"Heisei" = "Heisei"
+# navml/calendars.py:940
+"Reiwa" = "Reiwa"
+# navml/calendars.py:1042
+"Boishakh" = "Boishakh"
+# navml/calendars.py:1042
+"Joishtho" = "Joishtho"
+# navml/calendars.py:1042
+"Asharh" = "Asharh"
+# navml/calendars.py:1042
+"Shrabon" = "Shrabon"
+# navml/calendars.py:1042
+"Bhadro" = "Bhadro"
+# navml/calendars.py:1042
+"Ashwin" = "Ashwin"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Kartik" = "Kartik"
+# navml/calendars.py:1043
+"Ogrohayon" = "Ogrohayon"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Poush" = "Poush"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Magh" = "Magh"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Falgun" = "Falgun"
+# navml/calendars.py:1043
+"Choitro" = "Choitro"
+# navml/calendars.py:1100
+"Baisakh" = "Baisakh"
+# navml/calendars.py:1100
+"Jestha" = "Jestha"
+# navml/calendars.py:1100
+"Asar" = "Asar"
+# navml/calendars.py:1100
+"Shrawan" = "Shrawan"
+# navml/calendars.py:1100
+"Bhadau" = "Bhadau"
+# navml/calendars.py:1100
+"Asoj" = "Asoj"
+# navml/calendars.py:1101
+"Mangsir" = "Mangsir"
+# navml/calendars.py:1101
+"Chait" = "Chait"
+# navml/calendars.py:1106
+"Computed: Nepal's almanac may differ by a day" = "Berekend: Nepals almanak kan een dag afwijken"
+# navml/calendars.py:1169
+"Bahá" = "Bahá"
+# navml/calendars.py:1169
+"Jalál" = "Jalál"
+# navml/calendars.py:1169
+"Jamál" = "Jamál"
+# navml/calendars.py:1169
+"ʿAẓamat" = "ʿAẓamat"
+# navml/calendars.py:1169
+"Núr" = "Núr"
+# navml/calendars.py:1169
+"Raḥmat" = "Raḥmat"
+# navml/calendars.py:1169
+"Kalimát" = "Kalimát"
+# navml/calendars.py:1170
+"Kamál" = "Kamál"
+# navml/calendars.py:1170
+"Asmáʼ" = "Asmáʼ"
+# navml/calendars.py:1170
+"ʿIzzat" = "ʿIzzat"
+# navml/calendars.py:1170
+"Mashíyyat" = "Mashíyyat"
+# navml/calendars.py:1170
+"ʿIlm" = "ʿIlm"
+# navml/calendars.py:1170
+"Qudrat" = "Qudrat"
+# navml/calendars.py:1170
+"Qawl" = "Qawl"
+# navml/calendars.py:1171
+"Masáʼil" = "Masáʼil"
+# navml/calendars.py:1171
+"Sharaf" = "Sharaf"
+# navml/calendars.py:1171
+"Sulṭán" = "Sulṭán"
+# navml/calendars.py:1171
+"Mulk" = "Mulk"
+# navml/calendars.py:1171
+"Ayyám-i-Há" = "Ayyám-i-Há"
+# navml/calendars.py:1171
+"ʿAláʼ" = "ʿAláʼ"
+# navml/calendars.py:1295
+"Tagu" = "Tagu"
+# navml/calendars.py:1295
+"Kason" = "Kason"
+# navml/calendars.py:1295
+"Nayon" = "Nayon"
+# navml/calendars.py:1295
+"First Waso" = "Eerste Waso"
+# navml/calendars.py:1295
+"Waso" = "Waso"
+# navml/calendars.py:1295
+"Wagaung" = "Wagaung"
+# navml/calendars.py:1296
+"Tawthalin" = "Tawthalin"
+# navml/calendars.py:1296
+"Thadingyut" = "Thadingyut"
+# navml/calendars.py:1296
+"Tazaungmon" = "Tazaungmon"
+# navml/calendars.py:1296
+"Nadaw" = "Nadaw"
+# navml/calendars.py:1296
+"Pyatho" = "Pyatho"
+# navml/calendars.py:1297
+"Tabodwe" = "Tabodwe"
+# navml/calendars.py:1297
+"Tabaung" = "Tabaung"
+# navml/calendars.py:1300
+"Second Waso" = "Tweede Waso"
+# navml/calendars.py:1456
+"Wood" = "Hout"
+# navml/calendars.py:1456
+"Fire" = "Vuur"
+# navml/calendars.py:1456
+"Earth" = "Aarde"
+# navml/calendars.py:1456
+"Iron" = "IJzer"
+# navml/calendars.py:1456
+"Water" = "Water"
+# navml/calendars.py:1488
+"Hamal" = "Hamal"
+# navml/calendars.py:1488
+"Sawr" = "Sawr"
+# navml/calendars.py:1488
+"Jawza" = "Jawza"
+# navml/calendars.py:1488
+"Saratan" = "Saratan"
+# navml/calendars.py:1488
+"Asad" = "Asad"
+# navml/calendars.py:1488
+"Sonbola" = "Sonbola"
+# navml/calendars.py:1489
+"Mizan" = "Mizan"
+# navml/calendars.py:1489
+"Aqrab" = "Aqrab"
+# navml/calendars.py:1489
+"Qaws" = "Qaws"
+# navml/calendars.py:1489
+"Jadi" = "Jadi"
+# navml/calendars.py:1489
+"Dalw" = "Dalw"
+# navml/calendars.py:1489
+"Hut" = "Hut"
+# navml/calendars.py:1657
+"Pisakh" = "Pisakh"
+# navml/calendars.py:1657
+"Jesth" = "Jesth"
+# navml/calendars.py:1657
+"Asadh" = "Asadh"
+# navml/calendars.py:1658
+"Pathamasadh" = "Pathamasadh"
+# navml/calendars.py:1658
+"Tutiyasadh" = "Tutiyasadh"
+# navml/calendars.py:1658
+"Srap" = "Srap"
+# navml/calendars.py:1659
+"Phatrabot" = "Phatrabot"
+# navml/calendars.py:1659
+"Assoch" = "Assoch"
+# navml/calendars.py:1659
+"Kadeuk" = "Kadeuk"
+# navml/calendars.py:1660
+"Migasir" = "Migasir"
+# navml/calendars.py:1660
+"Boss" = "Boss"
+# navml/calendars.py:1660
+"Meak" = "Meak"
+# navml/calendars.py:1660
+"Phalkun" = "Phalkun"
+# navml/calendars.py:1661
+"Cheit" = "Cheit"
+# navml/calendars.py:261
+"{day} {month} {year}" = "{day} {month} {year}"
+# navml/calendars.py:324
+"Easter (Orthodox)" = "Pasen (orthodox)"
+# navml/calendars.py:326
+"Easter (Western)" = "Pasen (westers)"
+# navml/calendars.py:406
+"Adar I" = "Adar I"
+# navml/calendars.py:406
+"Adar" = "Adar"
+# navml/calendars.py:511
+"Computed: the published calendar may differ by a day" = "Berekend: de gepubliceerde kalender kan een dag afwijken"
+# navml/calendars.py:853
+"{stem}-{branch}, year of the {animal}" = "{stem}-{branch}, jaar van de {animal}"
+# navml/calendars.py:954, navml/calendars.py:975, navml/calendars.py:995
+"{label} ({year})" = "{label} ({year})"
+# navml/calendars.py:1176
+"Naw-Rúz" = "Naw-Rúz"
+# navml/calendars.py:1178
+"Computed: not yet published by the Baháʼí World Centre" = "Berekend: nog niet gepubliceerd door het Bahá'í-Wereldcentrum"
+# navml/calendars.py:1309, navml/calendars.py:1674
+"Full moon" = "Volle maan"
+# navml/calendars.py:1461
+"Losar" = "Losar"
+# navml/calendars.py:1464
+"Doubled day" = "Dubbele dag"
+# navml/calendars.py:950
+"{era} {year}" = "{era} {year}"
+# navml/calendars.py:972
+"{year} BE" = "{year} BE"
+# navml/calendars.py:992
+"{year} before ROC" = "{year} vóór ROC"
+# navml/calendars.py:1311, navml/calendars.py:1691
+"New moon" = "Nieuwe maan"
+# navml/calendars.py:1468
+"{element} {animal} year" = "Jaar: {animal} ({element})"
+# navml/calendars.py:1677
+"Asalha Puja" = "Asalha Puja"
+# navml/calendars.py:830, navml/calendars.py:1449
+"Leap {number}" = "Schrikkel-{number}"
+# navml/calendars.py:991
+"ROC {year}" = "ROC {year}"
+# navml/calendars.py:1467
+"Day {number} is skipped" = "Dag {number} vervalt"
+# navml/calendars.py:1679
+"Magha Puja" = "Magha Puja"
+# navml/calendars.py:1315
+"Myanmar New Year's Day, {year} ME" = "Myanmarees Nieuwjaar, {year} ME"
+# navml/calendars.py:1681
+"Vesak" = "Vesak"
+# navml/calendars.py:1683
+"Magha Puja (Cambodia)" = "Magha Puja (Cambodja)"
+# navml/calendars.py:1685
+"Magha Puja (Thailand, Laos)" = "Magha Puja (Thailand, Laos)"
+# navml/calendars.py:1687
+"Vesak (Cambodia)" = "Vesak (Cambodja)"
+# navml/calendars.py:1689
+"Vesak (Thailand, Laos)" = "Vesak (Thailand, Laos)"
+# navml/commands.py:30, navml/widgets/window/window.py:318
+"Close" = "Sluiten"
+# navml/commands.py:36, navml/widgets/window/window.py:320
+"Zoom" = "Zoom"
+# navml/commands.py:76
+"List" = "Lijst"
+# navml/commands.py:86
+"Tile" = "Naast elkaar"
+# navml/commands.py:95
+"Cascade" = "Trapsgewijs"
+# navml/commands.py:105
+"Close all" = "Alles sluiten"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "Er is geen venster open"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "Er is geen venster om te schikken"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "Er is geen venster om te sluiten"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "Dit venster kan niet worden gezoomd"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "Dit venster kan niet worden gesloten"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "Er is geen venster met nummer {number}"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "Zwart"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "Blauw"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "Groen"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "Cyan"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "Rood"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "Magenta"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "Bruin"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "Lichtgrijs"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "Donkergrijs"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "Lichtblauw"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "Lichtgroen"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "Lichtcyaan"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "Lichtrood"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "Lichtmagenta"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "Geel"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "Wit"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " Text "
+# navml/widgets/dialog/commands.py:27
+"OK" = "OK"
+# navml/widgets/dialog/commands.py:41
+"Help" = "Help"
+# navml/widgets/dialog/commands.py:55
+"Next tab" = "Volgend tabblad"
+# navml/widgets/dialog/commands.py:61
+"Previous tab" = "Vorig tabblad"
+# navml/widgets/dialog/commands.py:74
+"Search" = "Zoeken"
+# navml/widgets/dialog/commands.py:92
+"Cut" = "Knippen"
+# navml/widgets/dialog/commands.py:98
+"Copy" = "Kopie"
+# navml/widgets/dialog/commands.py:104
+"Paste" = "Plakken"
+# navml/widgets/dialog/commands.py:110
+"Clear" = "Wissen"
+# navml/widgets/dialog/commands.py:120
+"Select all" = "Alles selecteren"
+# navml/widgets/dialog/commands.py:133
+"Previous month" = "Vorige maand"
+# navml/widgets/dialog/commands.py:139
+"Next month" = "Volgende maand"
+# navml/widgets/dialog/commands.py:145
+"Previous year" = "Vorig jaar"
+# navml/widgets/dialog/commands.py:151
+"Next year" = "Volgend jaar"
+# navml/widgets/dialog/commands.py:157
+"Choose month" = "Maand kiezen"
+# navml/widgets/dialog/commands.py:163
+"Choose year" = "Jaar kiezen"
+# navml/widgets/dialog/commands.py:169
+"Go to current date" = "Naar vandaag"
+# navml/widgets/dialog/commands.py:178
+"Calendar system" = "Kalendersysteem"
+# navml/widgets/dialog/commands.py:190
+"Calendar view" = "Kalenderweergave"
+# navml/widgets/dialog/commands.py:200
+"Swap calendars" = "Kalenders wisselen"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Mo" = "ma"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Tu" = "di"
+# navml/widgets/dialog/date_button/date_button.py:106
+"We" = "wo"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Th" = "do"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Fr" = "vr"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Sa" = "za"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Su" = "zo"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "maandag"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "dinsdag"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "woensdag"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "donderdag"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "vrijdag"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "zaterdag"
+# navml/widgets/dialog/date_button/date_button.py:112
+"Sunday" = "zondag"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Month" = "Maand"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Year" = "Jaar"
+# navml/widgets/dialog/date_button/date_button.py:426
+"Choose" = "Kiezen"
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
+"Today" = "Vandaag"
+# navml/widgets/dialog/date_button/date_button.py:460
+"The month before" = "De maand ervoor"
+# navml/widgets/dialog/date_button/date_button.py:462
+"The month after" = "De maand erna"
+# navml/widgets/dialog/date_button/date_button.py:464
+"A click chooses the month" = "Een klik kiest de maand"
+# navml/widgets/dialog/date_button/date_button.py:466
+"A click chooses the year" = "Een klik kiest het jaar"
+# navml/widgets/dialog/date_button/date_button.py:473
+"{weekday}, {date}, week {week}" = "{weekday} {date}, week {week}"
+# navml/widgets/dialog/date_button/date_button.py:484
+"{n} day from today" = ["over {n} dag", "over {n} dagen"]
+# navml/widgets/dialog/date_button/date_button.py:486
+"{n} day ago" = ["{n} dag geleden", "{n} dagen geleden"]
+# navml/widgets/dialog/dialog/dialog.py:290
+"Enter accepts, Escape dismisses." = "Enter neemt over, Escape verwerpt."
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
+"Invalid file name." = "Ongeldige bestandsnaam."
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
+"Invalid drive or directory." = "Ongeldig station of ongeldige map."
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
+"Error" = "Fout"
+# navml/widgets/dialog/file_list/file_list.py:213
+"Directory" = "Map"
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+" Search: " = " Zoeken: "
+# navml/widgets/dialog/history/history.py:114
+"Choose from the list ({key})" = "Kiezen uit de lijst ({key})"
+# navml/widgets/dialog/history/history.py:116
+"Earlier entries ({key})" = "Eerdere items ({key})"
+# navml/widgets/dialog/input_line/input_line.py:418
+"The line cannot be changed now" = "De regel kan nu niet worden gewijzigd"
+# navml/widgets/dialog/input_line/input_line.py:449
+"Cu~t~" = "~K~nippen"
+# navml/widgets/dialog/input_line/input_line.py:450
+"~C~opy" = "Kopi~ë~ren"
+# navml/widgets/dialog/input_line/input_line.py:451
+"~P~aste" = "~P~lakken"
+# navml/widgets/dialog/input_line/input_line.py:452
+"C~l~ear" = "~W~issen"
+# navml/widgets/dialog/input_line/input_line.py:454
+"Select ~a~ll" = "~A~lles selecteren"
+# navml/widgets/dialog/input_line/input_line.py:420
+"Nothing is selected" = "Er is niets geselecteerd"
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
+"The line is empty" = "De regel is leeg"
+# navml/widgets/dialog/input_line/input_line.py:427
+"All of it is selected" = "Alles is al geselecteerd"
+# navml/widgets/dialog/tab_view/tab_view.py:153
+"Tabs" = "Tabbladen"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Earlier tabs" = "Eerdere tabbladen"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Later tabs" = "Latere tabbladen"
+# navml/widgets/dialog/tree_view/tree_view.py:582
+"Next" = "Volgende"
+# navml/widgets/menu/commands.py:14
+"Menu" = "Menu"
+# navml/widgets/progress_bar/progress_bar.py:64
+"{done} of {total} done ({percent}%), {rest} to go" = "{done} van {total} klaar ({percent}%), nog {rest}"
+# navml/widgets/window/window.py:340
+"A double click zooms, a drag moves" = "Dubbelklik zoomt, slepen verplaatst"
+# navml/widgets/window/window.py:342
+"A drag moves" = "Slepen verplaatst"
+# navml/widgets/window/window.py:381
+"Move" = "Verpl."
+# navml/widgets/window/window.py:381
+"Size" = "Grootte"
+# navml/widgets/window/window.py:381
+"Keep" = "Houden"
+# navml/widgets/window/window.py:381
+"Undo" = "Terug"
+# navml/widgets/window/window.py:320
+"Restore" = "Herstel"
+# navml/widgets/window/window.py:322
+"Drag to resize" = "Slepen verandert de grootte"

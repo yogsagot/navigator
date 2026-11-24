@@ -413,6 +413,40 @@ def _french(n: int) -> int:
     return 0 if n in (0, 1) else 1
 
 
+def _romanian(n: int) -> int:
+    # one, few (0 and ..02-..19), other: "1 fișier", "2 fișiere",
+    # "20 de fișiere", "101 de fișiere".
+    if n == 1:
+        return 0
+    if n == 0 or 2 <= n % 100 <= 19:
+        return 1
+    return 2
+
+
+def _lithuanian(n: int) -> int:
+    # one (..1 but not ..11), few (..2-..9 but not ..12-..19), other (..0
+    # and ..11-..19): "1 failas", "2 failai", "10 failų".
+    if 11 <= n % 100 <= 19:
+        return 2
+    if n % 10 == 1:
+        return 0
+    if n % 10 >= 2:
+        return 1
+    return 2
+
+
+def _slovenian(n: int) -> int:
+    # one (..01), two (..02), few (..03-..04), other: "1 datoteka",
+    # "2 datoteki", "3 datoteke", "5 datotek".
+    if n % 100 == 1:
+        return 0
+    if n % 100 == 2:
+        return 1
+    if n % 100 in (3, 4):
+        return 2
+    return 3
+
+
 def _hebrew(n: int) -> int:
     # one, two, other: "קובץ אחד", "שני קבצים", "5 קבצים".
     if n == 1:
@@ -445,8 +479,16 @@ PLURAL_RULES: dict[str, Callable[[int], int]] = {
     "ru": _slavic,
     "uk": _slavic,
     "be": _slavic,
+    # Croatian and Serbian: one, few, other -- the same split as Russian's
+    # for whole numbers.
+    "hr": _slavic,
+    "sr": _slavic,
     "pl": _polish,
     "cs": _czech,
+    "sk": _czech,
+    "ro": _romanian,
+    "lt": _lithuanian,
+    "sl": _slovenian,
     "fr": _french,
     "pt": _french,
     "he": _hebrew,

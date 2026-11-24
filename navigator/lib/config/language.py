@@ -39,11 +39,18 @@ def from_environment() -> str:
     return SOURCE
 
 
+#: A language whose catalogue is another's: Norwegian's ``no_NO`` and
+#: Nynorsk's ``nn_NO`` read the one Norwegian there is, Bokmål's.
+ALIASES = {"no": "nb", "nn": "nb"}
+
+
 def resolve(code: str) -> str:
     """*code* as a language a catalogue exists for: itself, its bare language
-    (``lv_LV`` to ``lv``), or English.  Automatic asks the environment."""
+    (``lv_LV`` to ``lv``), the language that bare one is read as
+    (:data:`ALIASES`), or English.  Automatic asks the environment."""
     wanted = code or from_environment()
-    for candidate in (wanted, wanted.split("_")[0]):
+    bare = wanted.split("_")[0]
+    for candidate in (wanted, bare, ALIASES.get(bare, "")):
         # Only whether its file exists: listing every language would read
         # every catalogue, at every start.
         if candidate and has_catalogue(candidate):

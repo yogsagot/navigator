@@ -163,6 +163,24 @@ def test_french_and_portuguese_count_zero_as_one():
         assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [0, 0, 1, 1]
 
 
+def test_slovak_counts_like_czech_and_croatian_and_serbian_like_russian():
+    assert [plural_form("sk", n) for n in (1, 2, 4, 5)] == [0, 1, 1, 2]
+    for code in ("hr", "sr"):
+        assert [plural_form(code, n) for n in (1, 2, 5, 11, 21, 22, 25)] == [0, 1, 2, 2, 0, 1, 2]
+
+
+def test_romanian_rule():
+    assert [plural_form("ro", n) for n in (0, 1, 2, 19, 20, 101, 102, 119, 120)] == [1, 0, 1, 1, 2, 2, 1, 1, 2]
+
+
+def test_lithuanian_rule():
+    assert [plural_form("lt", n) for n in (1, 2, 9, 10, 11, 19, 21, 22, 30)] == [0, 1, 1, 2, 2, 2, 0, 1, 2]
+
+
+def test_slovenian_rule():
+    assert [plural_form("sl", n) for n in (1, 2, 3, 4, 5, 101, 102, 104, 111)] == [0, 1, 2, 2, 3, 0, 1, 2, 3]
+
+
 def test_hebrew_rule():
     assert [plural_form("he", n) for n in (1, 2, 3, 10, 22)] == [0, 1, 2, 2, 2]
 
@@ -312,6 +330,15 @@ def test_the_environment_picks_a_known_language(latvian, monkeypatch):
     assert language.resolve("") == "en"
     assert language.resolve("lv") == "lv"
     assert language.resolve("xx") == "en"
+
+
+def test_norwegian_and_nynorsk_read_bokmal(tmp_path, monkeypatch):
+    from navigator.lib.config import language
+    (tmp_path / "nb.toml").write_text('[meta]\nname = "Norsk bokmål"\n[strings]\n', encoding="utf-8")
+    register_directory(tmp_path)
+    for value in ("no_NO.UTF-8", "nn_NO.UTF-8", "nb_NO.UTF-8"):
+        monkeypatch.setenv("LC_ALL", value)
+        assert language.resolve("") == "nb"
 
 
 def test_menu_anchors_are_english_whatever_is_shown(latvian):
