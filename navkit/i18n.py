@@ -491,11 +491,20 @@ PLURAL_RULES: dict[str, Callable[[int], int]] = {
     "sl": _slovenian,
     "fr": _french,
     "pt": _french,
+    # Hindi and Bengali: one (0 and 1), other, CLDR's -- "1 फ़ाइल", "2 फ़ाइलें".
+    "hi": _french,
+    "bn": _french,
     "he": _hebrew,
     "ar": _arabic,
     "ja": _single,
     "zh": _single,
     "ko": _single,
+    # Indonesian, Malay, Vietnamese and Thai do not inflect a noun for its
+    # number.  Filipino is left to count like English, writing both forms alike.
+    "id": _single,
+    "ms": _single,
+    "vi": _single,
+    "th": _single,
 }
 
 

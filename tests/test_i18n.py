@@ -3,6 +3,8 @@ Navigator's choice of language (``navigator/lib/config/language.py``)."""
 
 from __future__ import annotations
 
+import unicodedata
+
 import pytest
 
 from navkit.i18n import (
@@ -161,6 +163,29 @@ def test_czech_rule():
 def test_french_and_portuguese_count_zero_as_one():
     for code in ("fr", "pt", "pt_BR"):
         assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [0, 0, 1, 1]
+
+
+def test_hindi_and_bengali_count_zero_as_one_and_the_southeast_asian_languages_do_not_count():
+    for code in ("hi", "bn"):
+        assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [0, 0, 1, 1]
+    for code in ("id", "ms", "vi", "th"):
+        assert {plural_form(code, n) for n in (0, 1, 2, 5, 21)} == {0}
+    assert [plural_form("fil", n) for n in (1, 2)] == [0, 1]
+
+
+def test_thai_wraps_where_a_zero_width_space_marks_a_word_and_marks_stay_on_their_letter():
+    from navkit.bidi import display_width
+    from navml.widgets.dialog.static_text.static_text import ZWSP, wrapped
+    words = ["ไม่สามารถ", "คัดลอก", "ไฟล์", "นี้", "ได้"]
+    lines = wrapped(ZWSP.join(words), 12)
+    assert "".join(lines) == "".join(words)
+    assert all(display_width(line) <= 12 for line in lines) and len(lines) > 1
+    # Every line starts with a whole word: the breaks were the spaces' places.
+    starts = {word for word in words}
+    assert all(any(line.startswith(word) for word in starts) for line in lines)
+    # A word longer than the line is cut between letters, never before a mark.
+    for line in wrapped("ปิดปิดปิดปิดปิดปิดที่นี่", 5):
+        assert line and unicodedata.category(line[0]) not in ("Mn", "Me")
 
 
 def test_slovak_counts_like_czech_and_croatian_and_serbian_like_russian():

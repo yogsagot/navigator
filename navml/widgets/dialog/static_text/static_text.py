@@ -79,6 +79,9 @@ def link_urls(surface: Surface, x: int, y: int, line: str) -> None:
 _NO_START = set("、。，．,.)）」』】〕〉》！？!?：；:;ー…・々ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ")
 _NO_END = set("（「『【〔〈《(")
 
+#: Where a line of Thai may break: Thai writes no blanks between its words.
+ZWSP = "\u200b"
+
 
 def _cells(text: str) -> int:
     """The cells *text* paints, its ``~`` hotkey marks left out."""
@@ -94,13 +97,19 @@ def _units(paragraph: str) -> list[tuple[str, str]]:
     for number, word in enumerate(paragraph.split(" ")):
         joiner, chunk = (" " if number else ""), ""
         for char in word:
+            if char == ZWSP:
+                # Thai writes no blanks between words; a translation marks
+                # where a line may break with a zero width space instead.
+                units.append((joiner, chunk))
+                joiner, chunk = "", ""
+                continue
             if chunk and (char_width(chunk[-1]) == 2 or char_width(char) == 2) \
                     and char not in _NO_START and chunk[-1] not in _NO_END:
                 units.append((joiner, chunk))
                 joiner, chunk = "", ""
             chunk += char
         units.append((joiner, chunk))
-    return units
+    return [unit for unit in units if unit[1] or unit[0]] or [("", "")]
 
 
 def _fitting(chunk: str, width: int) -> int:
@@ -109,6 +118,8 @@ def _fitting(chunk: str, width: int) -> int:
     for index, char in enumerate(chunk):
         used += 0 if char == "~" else char_width(char)
         if used > width:
+            # Only a character with width overflows, so a combining mark --
+            # a Thai vowel or tone mark -- always stays on its letter.
             return max(1, index)
     return len(chunk)
 
