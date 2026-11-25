@@ -16,9 +16,9 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
   `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv, ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt, he, ar, ja/zh/ko; anything
-  else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu -- counts like English; Turkish and Hungarian write
-  both forms the same, a noun after a number staying singular).
+  `PLURAL_RULES` (en, lv, ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn, he, ar, ja/zh/ko and id/ms/vi/th (one form, no
+  plural); anything else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu, fil -- counts like English; Turkish,
+  Hungarian, Filipino and Bengali write both forms the same, a noun after a number staying as it is).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
@@ -26,7 +26,7 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `10 failu`; ru/uk: one, few, many; pl: one (1 only), few, many -- `1 plik`, `22 pliki`, `5 plików`; cs: one,
   few (2-4), other (sk too); hr/sr as ru; ro: one, few (0 and n%100 2-19), other -- `1 fișier`, `2 fișiere`,
   `20 de fișiere`; lt: one (n%10 1, not 11-19), few (n%10 2-9, not 11-19), other -- `1 failas`, `2 failai`,
-  `10 failų`; sl: one (n%100 1), two (2), few (3-4), other; fr/pt: one (0 and 1), other; he: one, two, other;
+  `10 failų`; sl: one (n%100 1), two (2), few (3-4), other; fr/pt and hi/bn: one (0 and 1), other -- `1 फ़ाइल`, `2 फ़ाइलें`; id/ms/vi/th: one form; he: one, two, other;
   ar: zero, one, two, few, many, other, CLDR's).
   A catalogue named for a region (`zh_TW.toml`, Traditional Chinese) is found before its bare language
   (`language.resolve`), and takes the bare language's plural rule. `[meta] direction = "rtl"` (he,
@@ -86,12 +86,20 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
 - **The hotkey belongs to the translator**: `"~N~ame" = "~V~ārds"`. Chinese, Japanese and Korean (`zh`, `zh_TW`,
   `ja`, `ko`) keep the
   English letter in ASCII parentheses after the caption, `"~N~ame" = "名前(~N~)"`, as CJK Windows and DOS
-  programs did: nobody presses a kanji with Alt, an IME sits in the way. Turkish avoids `I`/`İ`/`ı` as a hotkey: `MenuBar.hotkey`
+  programs did: nobody presses a kanji with Alt, an IME sits in the way. Thai, Hindi and Bengali (`th`, `hi`,
+  `bn`) do the same, `"~F~ile" = "फ़ाइल(~F~)"`: a Thai or Indic letter is often a combining mark (a vowel or
+  tone sign) that cannot carry a hotkey, and taking **the English caption's own letter** makes a clash impossible,
+  `check_english` having made those unique per scope. Vietnamese puts its hotkeys on ASCII letters only: Alt with a
+  Vietnamese input method types the bare letter, never `ă ê ơ ư` or a toned one. Turkish avoids `I`/`İ`/`ı` as a hotkey: `MenuBar.hotkey`
   compares `.lower()`, and `"İ".lower()` is two characters. Greek avoids accented letters (`ά έ ή ί ό ύ ώ`) and
   final `ς` as hotkeys: Alt with a Greek layout types the plain letter, so an accented hotkey cannot be pressed.
 - **Measure in cells, never `len()`**: a CJK character is two cells. `navkit.bidi.display_width` measures,
   `fit_cells` cuts and `pad_cells` pads (ljust/rjust/center); StaticText's `wrapped()` breaks Chinese and Japanese
-  between characters (with kinsoku: no closing mark at a line's start). Whatever sizes, aligns or cuts a
+  between characters (with kinsoku: no closing mark at a line's start). Thai writes no blanks between words: a
+  long Thai message carries U+200B ZERO WIDTH SPACE between them, and `_units` breaks there with an empty joiner
+  (the ZWSP is zero cells and never shown). A Thai or Devanagari mark that pyte's `wcwidth` gives no cell is folded
+  onto its letter by `navkit/console.py`'s `_Screen` (`_loose_mark`, `_combine`), and pyte measures with navkit's
+  `char_width`, so a child program's Thai or Hindi lines up in the console as Navigator paints it. Whatever sizes, aligns or cuts a
   translated caption goes through them. A Button whose caption is wider than its room takes the `▶◀` cells
   (`Button.crowded`); the key bar goes tight (one blank between items) when it would otherwise lose an F-key,
   and tighter still (no blank between a key and its caption, `F2Saglab.`) when tight is not enough --
