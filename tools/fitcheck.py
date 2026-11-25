@@ -44,7 +44,7 @@ from navkit.bidi import display_width  # noqa: E402
 
 #: The languages checked with no ``--language``: English and every catalogue.
 LANGUAGES = ("en", "he", "ar", "ja", "lv", "ru", "zh", "de", "es", "fr", "pt", "uk", "pl", "it", "ko",
-             "cs", "tr", "zh_TW", "nl", "sv", "da", "nb", "sk", "hr", "sr", "sl", "bg", "ro", "lt", "et", "el", "fi", "hu", "id", "ms")
+             "cs", "tr", "zh_TW", "nl", "sv", "da", "nb", "sk", "hr", "sr", "sl", "bg", "ro", "lt", "et", "el", "fi", "hu", "id", "ms", "fil")
 
 #: Scenes whose picture is no box with captions of its own (a panel, the
 #: console, a menu): nothing for this check to measure.
