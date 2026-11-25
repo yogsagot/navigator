@@ -114,6 +114,14 @@ def test_thai_marks_stay_on_their_letter_and_the_line_goes_on():
     assert console.surface.get(1, 0)[0] == "ทิ"
 
 
+def test_devanagari_vowel_signs_take_a_cell_as_navkit_paints_them():
+    # wcwidth gives a spacing vowel sign (Mc) no width and pyte stopped
+    # drawing there; navkit gives it a cell.
+    console = feed("फ़ाइल उपयोगिताएँ|".encode(), columns=30)
+    assert text_of(console, 0) == "फ़ाइल उपयोगिताएँ|"
+    assert console.surface.get(1, 0)[0] == "ा"
+
+
 def test_a_wide_character_occupies_two_cells():
     console = feed(b"\xe6\x97\xa5x")
     surface = console.surface

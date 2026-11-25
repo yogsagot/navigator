@@ -47,7 +47,7 @@ from pyte.screens import Char, StaticDefaultDict
 
 from navkit.bidi import LaidCell, order_cells
 from navkit.capabilities import is_utf8
-from navkit.screen import ScreenBuffer, Surface
+from navkit.screen import ScreenBuffer, Surface, char_width
 from navkit.style import Color, Style
 
 #: How many lines of scrollback a console keeps by default.
@@ -164,6 +164,22 @@ MOUSE_MODES = (9, 1000, 1002, 1003)
 _DECCKM = 1 << 5
 #: SGR mouse encoding, ``CSI < b ; x ; y M``.
 _MOUSE_SGR = 1006 << 5
+
+
+def _cell_width(char: str) -> int:
+    """pyte's measure of a character, made navkit's (``char_width``).
+
+    wcwidth 0.8 gives a spacing vowel sign (Devanagari's ा and ि, category
+    Mc) no width, and pyte stops drawing at a character of no width it cannot
+    combine: a line of Hindi came out as its first syllable.  navkit paints
+    such a sign in a cell of its own, as glibc and the terminals do, and the
+    console has to agree with the screen it is drawn on."""
+    return char_width(char)
+
+
+# pyte reads ``wcwidth`` from its own module when it draws; this process uses
+# pyte for the console alone.
+pyte.screens.wcwidth = _cell_width
 
 
 def _loose_mark(char: str) -> bool:
