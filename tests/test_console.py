@@ -106,6 +106,14 @@ def test_cursor_positioning_and_erase():
     assert text_of(console, 0) == "ab"
 
 
+def test_thai_marks_stay_on_their_letter_and_the_line_goes_on():
+    # Most Thai vowel and tone marks have no combining class, and pyte
+    # stopped drawing at the first one.
+    console = feed("ยูทิลิตี(U)|".encode())
+    assert text_of(console, 0) == "ยูทิลิตี(U)|"
+    assert console.surface.get(1, 0)[0] == "ทิ"
+
+
 def test_a_wide_character_occupies_two_cells():
     console = feed(b"\xe6\x97\xa5x")
     surface = console.surface

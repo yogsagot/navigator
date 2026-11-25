@@ -33,6 +33,7 @@ from __future__ import annotations
 import codecs
 import os
 import shutil
+import unicodedata
 import subprocess
 from functools import lru_cache
 
@@ -165,6 +166,12 @@ _DECCKM = 1 << 5
 _MOUSE_SGR = 1006 << 5
 
 
+def _loose_mark(char: str) -> bool:
+    """A zero-width mark pyte would not combine: no combining class (Thai's
+    vowel and tone marks, many Indic vowel signs)."""
+    return unicodedata.category(char) in ("Mn", "Me") and not unicodedata.combining(char)
+
+
 class _Screen(pyte.HistoryScreen):
     """pyte's screen with the two things a full-screen program needs of it.
 
@@ -197,9 +204,36 @@ class _Screen(pyte.HistoryScreen):
     # its lines cut short and out of place.  :class:`_Stream` routes them here.
 
     def draw(self, data: str) -> None:
-        super().draw(data)
+        # pyte joins a mark to the cell before it only when the mark has a
+        # combining class, and stops drawing at any other zero-width
+        # character: most Thai vowel and tone marks (U+0E31, U+0E34..) have
+        # class 0, and "ยูทิลิตี" came out as "ยูท" with the rest of the line
+        # lost.  Those marks are folded into their letter here instead.
+        start = 0
+        for index, char in enumerate(data):
+            if char >= "\u0300" and _loose_mark(char):
+                if index > start:
+                    super().draw(data[start:index])
+                self._combine(char)
+                start = index + 1
+        if start < len(data):
+            super().draw(data[start:])
         if data:
             self._last = data[-1]
+
+    def _combine(self, mark: str) -> None:
+        """Put *mark* on the cell before the cursor, as pyte does a mark with a
+        combining class."""
+        x, y = self.cursor.x, self.cursor.y
+        if x:
+            line, column = self.buffer[y], x - 1
+        elif y:
+            line, column = self.buffer[y - 1], self.columns - 1
+        else:
+            return
+        last = line[column]
+        line[column] = last._replace(data=last.data + mark)
+        self.dirty.add(y)
 
     def repeat_last(self, count: int = 1, *_: Any, private: bool = False, **__: Any) -> None:
         """``REP``: the last character drawn, *count* more times."""
