@@ -452,7 +452,7 @@ flag = "GR"
 # navml/calendars.py:1295
 "Nayon" = "Nayon"
 # navml/calendars.py:1295
-"First Waso" = "Πρώτος Waso"
+"First Waso" = "Waso I"
 # navml/calendars.py:1295
 "Waso" = "Waso"
 # navml/calendars.py:1295
@@ -472,7 +472,7 @@ flag = "GR"
 # navml/calendars.py:1297
 "Tabaung" = "Tabaung"
 # navml/calendars.py:1300
-"Second Waso" = "Δεύτερος Waso"
+"Second Waso" = "Waso II"
 # navml/calendars.py:1456
 "Wood" = "Ξύλο"
 # navml/calendars.py:1456
@@ -574,7 +574,7 @@ flag = "GR"
 # navml/calendars.py:1677
 "Asalha Puja" = "Asalha Puja"
 # navml/calendars.py:830, navml/calendars.py:1449
-"Leap {number}" = "Εμβόλιμος {number}"
+"Leap {number}" = "Εμβ. {number}"
 # navml/calendars.py:991
 "ROC {year}" = "ROC {year}"
 # navml/calendars.py:1467

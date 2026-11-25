@@ -574,7 +574,7 @@ flag = "BG"
 # navml/calendars.py:1677
 "Asalha Puja" = "Асалха Пуджа"
 # navml/calendars.py:830, navml/calendars.py:1449
-"Leap {number}" = "Високосен {number}"
+"Leap {number}" = "Висок. {number}"
 # navml/calendars.py:991
 "ROC {year}" = "РК {year}"
 # navml/calendars.py:1467

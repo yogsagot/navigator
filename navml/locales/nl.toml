@@ -574,7 +574,7 @@ flag = "NL"
 # navml/calendars.py:1677
 "Asalha Puja" = "Asalha Puja"
 # navml/calendars.py:830, navml/calendars.py:1449
-"Leap {number}" = "Schrikkel-{number}"
+"Leap {number}" = "Schrik. {number}"
 # navml/calendars.py:991
 "ROC {year}" = "ROC {year}"
 # navml/calendars.py:1467

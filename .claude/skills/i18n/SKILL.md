@@ -16,19 +16,24 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
   `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv, ru/uk/be, pl, cs, fr/pt, he, ar, ja/zh/ko; anything else -- de, es, it, tr -- counts
-  like English; Turkish writes both forms the same, a noun after a number staying singular).
+  `PLURAL_RULES` (en, lv, ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt, he, ar, ja/zh/ko; anything
+  else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu -- counts like English; Turkish and Hungarian write
+  both forms the same, a noun after a number staying singular).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
   A plural entry is a list of forms in the language's rule order (lv: one, other, zero -- `1 fails`, `2 faili`,
   `10 failu`; ru/uk: one, few, many; pl: one (1 only), few, many -- `1 plik`, `22 pliki`, `5 plików`; cs: one,
-  few (2-4), other; fr/pt: one (0 and 1), other; he: one, two, other; ar: zero, one, two, few, many, other, CLDR's).
+  few (2-4), other (sk too); hr/sr as ru; ro: one, few (0 and n%100 2-19), other -- `1 fișier`, `2 fișiere`,
+  `20 de fișiere`; lt: one (n%10 1, not 11-19), few (n%10 2-9, not 11-19), other -- `1 failas`, `2 failai`,
+  `10 failų`; sl: one (n%100 1), two (2), few (3-4), other; fr/pt: one (0 and 1), other; he: one, two, other;
+  ar: zero, one, two, few, many, other, CLDR's).
   A catalogue named for a region (`zh_TW.toml`, Traditional Chinese) is found before its bare language
   (`language.resolve`), and takes the bare language's plural rule. `[meta] direction = "rtl"` (he,
   ar) mirrors the screen (`i18n.is_rtl`, the `navkit-bidi` skill).
 - **`navigator/lib/config/language.py`**: `install(config_dir)` registers the three places; `resolve(code)` takes a code, its
-  bare language (`lv_LV` to `lv`), or English; empty means the environment (`$LC_ALL`, `$LC_MESSAGES`, `$LANG`).
+  bare language (`lv_LV` to `lv`), an alias (`ALIASES`: Norwegian `no`/`nn` read Bokmål `nb`), or English;
+  empty means the environment (`$LC_ALL`, `$LC_MESSAGES`, `$LANG`).
   Precedence: `--language`, `[interface] language`, environment, English. `main()` applies it before the app starts.
 - **Options > Interface** has a *Language* `ChoiceField`; `Shell._interface_setup` applies a *changed* choice live
   (Cancel or the same choice leaves a session's `--language` standing).
@@ -82,7 +87,8 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   `ja`, `ko`) keep the
   English letter in ASCII parentheses after the caption, `"~N~ame" = "名前(~N~)"`, as CJK Windows and DOS
   programs did: nobody presses a kanji with Alt, an IME sits in the way. Turkish avoids `I`/`İ`/`ı` as a hotkey: `MenuBar.hotkey`
-  compares `.lower()`, and `"İ".lower()` is two characters.
+  compares `.lower()`, and `"İ".lower()` is two characters. Greek avoids accented letters (`ά έ ή ί ό ύ ώ`) and
+  final `ς` as hotkeys: Alt with a Greek layout types the plain letter, so an accented hotkey cannot be pressed.
 - **Measure in cells, never `len()`**: a CJK character is two cells. `navkit.bidi.display_width` measures,
   `fit_cells` cuts and `pad_cells` pads (ljust/rjust/center); StaticText's `wrapped()` breaks Chinese and Japanese
   between characters (with kinsoku: no closing mark at a line's start). Whatever sizes, aligns or cuts a
