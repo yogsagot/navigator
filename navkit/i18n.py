@@ -447,6 +447,12 @@ def _slovenian(n: int) -> int:
     return 3
 
 
+def _one_but_eleven(n: int) -> int:
+    # one (..1 but not ..11), other: Icelandic's "1 skrá", "11 skrár",
+    # "21 skrá", and Macedonian's whole numbers the same way.
+    return 0 if n % 10 == 1 and n % 100 != 11 else 1
+
+
 def _hebrew(n: int) -> int:
     # one, two, other: "קובץ אחד", "שני קבצים", "5 קבצים".
     if n == 1:
@@ -499,6 +505,10 @@ PLURAL_RULES: dict[str, Callable[[int], int]] = {
     # forms alike, a noun after a number staying singular, as in Turkish.
     "fa": _french,
     "hy": _french,
+    # Icelandic and Macedonian: one for ..1 but not ..11, other.  Galician,
+    # Catalan, Basque and Albanian count like English.
+    "is": _one_but_eleven,
+    "mk": _one_but_eleven,
     "he": _hebrew,
     "ar": _arabic,
     "ja": _single,

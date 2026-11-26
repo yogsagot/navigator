@@ -180,6 +180,13 @@ def test_persian_and_armenian_count_zero_as_one_and_the_rest_of_the_region_like_
         assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [1, 0, 1, 1]
 
 
+def test_icelandic_and_macedonian_count_one_for_twenty_one_but_not_for_eleven():
+    for code in ("is", "mk"):
+        assert [plural_form(code, n) for n in (0, 1, 2, 11, 21, 101, 111)] == [1, 0, 1, 1, 0, 0, 1]
+    for code in ("gl", "ca", "eu", "sq"):
+        assert [plural_form(code, n) for n in (0, 1, 2, 21)] == [1, 0, 1, 1]
+
+
 def test_thai_wraps_where_a_zero_width_space_marks_a_word_and_marks_stay_on_their_letter():
     from navkit.bidi import display_width
     from navml.widgets.dialog.static_text.static_text import ZWSP, wrapped
