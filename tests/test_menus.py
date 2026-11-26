@@ -620,6 +620,27 @@ def test_a_hebrew_hotkey_opens_by_its_letter_or_by_the_key_in_its_place():
     assert bar.tooltip_at(start, 0) == "Files (~Alt-ק~, ~Alt-E~)"
 
 
+def test_persian_urdu_and_georgian_hotkeys_open_by_the_key_in_their_place():
+    from navkit import i18n, keyboard
+
+    root = Widget()
+    bar = MenuBar(parent=root)
+    SubMenu(parent=bar, text="~ف~ایل")
+    SubMenu(parent=bar, text="~د~یسک")
+    SubMenu(parent=bar, text="~ფ~აილი")
+    # Georgian's layout is the same whatever the interface language.
+    assert bar.hotkey("f") == 2
+    # Persian's dal is on n, Arabic's on ]: the language picks the layout.
+    i18n.LOCALE.code = "fa"
+    assert bar.hotkey("t") == 0 and bar.hotkey("n") == 1
+    assert keyboard.latin("ی") == "d" and keyboard.latin("پ") == "m"
+    i18n.LOCALE.code = "ur"
+    assert bar.hotkey("d") == 1  # Urdu's phonetic dal is on d
+    assert keyboard.latin("ی") == "i" and keyboard.latin("پ") == "p"
+    i18n.LOCALE.code = "ar"
+    assert bar.hotkey("]") == 1 and keyboard.latin("ק") == "e"
+
+
 def test_a_menu_hotkey_on_another_layout_beats_a_binding_on_the_latin_key(monkeypatch):
     # Alt+ק with a Hebrew layout reports base "e": the menu marked ק opens,
     # though a key table binds Alt+E -- the key as typed is offered first.

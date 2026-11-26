@@ -494,6 +494,11 @@ PLURAL_RULES: dict[str, Callable[[int], int]] = {
     # Hindi and Bengali: one (0 and 1), other, CLDR's -- "1 फ़ाइल", "2 फ़ाइलें".
     "hi": _french,
     "bn": _french,
+    # Persian and Armenian: one (0 and 1), other, CLDR's.  Urdu, Azerbaijani,
+    # Kazakh, Uzbek and Georgian count like English; all but Urdu write both
+    # forms alike, a noun after a number staying singular, as in Turkish.
+    "fa": _french,
+    "hy": _french,
     "he": _hebrew,
     "ar": _arabic,
     "ja": _single,

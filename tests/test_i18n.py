@@ -173,6 +173,13 @@ def test_hindi_and_bengali_count_zero_as_one_and_the_southeast_asian_languages_d
     assert [plural_form("fil", n) for n in (1, 2)] == [0, 1]
 
 
+def test_persian_and_armenian_count_zero_as_one_and_the_rest_of_the_region_like_english():
+    for code in ("fa", "hy"):
+        assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [0, 0, 1, 1]
+    for code in ("ur", "az", "kk", "uz", "ka"):
+        assert [plural_form(code, n) for n in (0, 1, 2, 10)] == [1, 0, 1, 1]
+
+
 def test_thai_wraps_where_a_zero_width_space_marks_a_word_and_marks_stay_on_their_letter():
     from navkit.bidi import display_width
     from navml.widgets.dialog.static_text.static_text import ZWSP, wrapped

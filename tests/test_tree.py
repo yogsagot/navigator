@@ -1113,6 +1113,10 @@ def test_space_on_a_branch_not_read_opens_it_without_waiting():
         start, KeyEvent(" ", " "),
         lambda a: seen.update(open=by_name(tree, "usr").expanded, rows=names(tree)),
         lambda a: gate.set(), Until(lambda a: "lib" in names(tree), timeout=5),
+        # and until the new rows' probes are in: one still out when the app
+        # stops is asked again on the main thread, the loop no longer running
+        Until(lambda a: all(by_name(tree, name)._has_children is not None for name in ("lib", "local")),
+              timeout=5),
     ])
     assert seen == {"open": True, "rows": ["/", "usr", "var"]}
     assert threading.main_thread() not in threads

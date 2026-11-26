@@ -141,8 +141,8 @@ class MenuBar(MenuContainer, Widget):
             return super().tooltip_at(x, y)
         entry = self.entries()[index]
         letter = parse_shortcut(entry.text)[2]
-        # Only a letter a keyboard types: ``≡`` has none but F10.  A Hebrew
-        # or Arabic one is typed on its own layout, and on a US one by the
+        # Only a letter a keyboard types: ``≡`` has none but F10.  A Hebrew,
+        # Arabic, Persian, Urdu or Georgian one is typed on its own layout, and on a US one by the
         # key in its place (:meth:`hotkey`), which is said too.
         keys = []
         if letter.isalnum():
@@ -162,7 +162,7 @@ class MenuBar(MenuContainer, Widget):
 
     def hotkey(self, letter: str) -> int:
         """The entry whose marked letter is *letter*, or -1 -- or, for a Latin
-        *letter*, whose Hebrew or Arabic letter is typed by that key on its own
+        *letter*, whose Hebrew, Arabic, Persian, Urdu or Georgian letter is typed by that key on its own
         layout (:mod:`navkit.keyboard`): a translated menu opens with Alt+E on
         a US keyboard where its caption marks ק."""
         letter = letter.lower()
