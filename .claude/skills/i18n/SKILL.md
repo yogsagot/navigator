@@ -16,9 +16,9 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
   `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv, ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn, he, ar, ja/zh/ko and id/ms/vi/th (one form, no
-  plural); anything else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu, fil -- counts like English; Turkish,
-  Hungarian, Filipino and Bengali write both forms the same, a noun after a number staying as it is).
+  `PLURAL_RULES` (en, lv, ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn and fa/hy, he, ar, ja/zh/ko and id/ms/vi/th (one form, no
+  plural); anything else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu, fil, ur, az, kk, uz, ka -- counts like English; Turkish,
+  Hungarian, Filipino, Bengali, Persian, Azerbaijani, Kazakh, Uzbek and Georgian write both forms the same, a noun after a number staying as it is).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
@@ -93,6 +93,12 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   Vietnamese input method types the bare letter, never `ă ê ơ ư` or a toned one. Turkish avoids `I`/`İ`/`ı` as a hotkey: `MenuBar.hotkey`
   compares `.lower()`, and `"İ".lower()` is two characters. Greek avoids accented letters (`ά έ ή ί ό ύ ώ`) and
   final `ς` as hotkeys: Alt with a Greek layout types the plain letter, so an accented hotkey cannot be pressed.
+  Azerbaijani follows Turkish (no `I`/`İ`/`ı`, nor `ə`); Uzbek never puts one on `ʻ` (U+02BB, the letter of
+  `oʻ`/`gʻ`, never an ASCII apostrophe). Persian, Urdu and Georgian mark only a letter an unshifted key of their
+  standard layout types (or ASCII): `navkit/keyboard.py` maps it back to the US key, Persian's and Urdu's tables
+  per interface language (`LAYOUTS`, the two put shared letters on different keys), Georgian's in the shared
+  `LATIN`; Urdu's layout has 26 letters, so a crowded scope (Options > Interface) is reworded rather than solved.
+  Armenian and Kazakh need no table: Alt with their own layout types the marked letter.
 - **Measure in cells, never `len()`**: a CJK character is two cells. `navkit.bidi.display_width` measures,
   `fit_cells` cuts and `pad_cells` pads (ljust/rjust/center); StaticText's `wrapped()` breaks Chinese and Japanese
   between characters (with kinsoku: no closing mark at a line's start). Thai writes no blanks between words: a

@@ -68,7 +68,7 @@ terminal is the common case; a stateful one (ISO-2022-JP, UTF-7, `charset_named`
   `NAVKIT_KEYBOARD=legacy` turns both requests off.
 - **Another layout's letters** (Hebrew, Arabic) under Ctrl/Alt/Super carry `KeyEvent.base`, the US key in the same
   place: kitty's base layout key (the third `:` field of the key code, asked for by flag 4), else
-  `navkit/keyboard.py`'s SI-1452 and Arabic (101) position table (a legacy terminal's `ESC ס`; VTE already sends Ctrl
+  `navkit/keyboard.py`'s position tables (SI-1452, Arabic (101), Georgian; Persian's and Urdu's per interface language) (a legacy terminal's `ESC ס`; VTE already sends Ctrl
   as the Latin control byte). Not compared, and `matches()`/key tables see only `name`. **The application offers
   the key as typed first, all the way** (chord, its table, `on_key`, the focus path: `Application._deliver_key`),
   and only a key nothing took is offered again as `event.as_base()` -- so a translated menu's Alt+ק opens its menu
