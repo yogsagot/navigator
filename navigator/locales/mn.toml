@@ -626,7 +626,7 @@ flag = "MN"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:365
 "Everything under a tagged directory changes too" = "Тэмдэглэсэн хавтас доторх бүх зүйл өөрчлөгдөнө"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:373
-"A~s~ root" = "Root-ээр ~а~жиллах"
+"A~s~ root" = "Root ~э~рхээр"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:374
 "Open root access: any owner and group, and the change made as root" = "Root хандалт нээх: дурын эзэмшигч, бүлэг, өөрчлөлтийг root-ээр хийнэ"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:16
