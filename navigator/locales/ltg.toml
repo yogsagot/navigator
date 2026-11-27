@@ -992,7 +992,7 @@ flag = "LV"
 # navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:91
 "~C~lear all" = "T~e~ireit vysu"
 # navigator/widgets/manager/bookmark_label_dialog/bookmark_label_dialog.nml:11
-"Bookmark label" = "Grovuotzeimis nūsaukums"
+"Bookmark label" = "Gruomotzeimis nūsaukums"
 # navigator/widgets/manager/bookmark_label_dialog/bookmark_label_dialog.nml:22
 "~L~abel" = "~V~uords"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:18
@@ -1042,13 +1042,13 @@ flag = "LV"
 # navigator/widgets/manager/compare_progress/compare_progress.nml:36
 "No differences found" = "Atškireibu nav"
 # navigator/widgets/manager/delete_bookmark_dialog/delete_bookmark_dialog.nml:13
-"Delete bookmark" = "Dzēst grovuotzeimi"
+"Delete bookmark" = "Dzēst gruomotzeimi"
 # navigator/widgets/manager/delete_bookmark_dialog/delete_bookmark_dialog.nml:26
-"Do you wish to delete the bookmark" = "Voi tīšom dzēst grovuotzeimi"
+"Do you wish to delete the bookmark" = "Voi tīšom dzēst gruomotzeimi"
 # navigator/widgets/manager/delete_bookmark_dialog/delete_bookmark_dialog.nml:46, navigator/widgets/shell/exit_dialog/exit_dialog.nml:45
 "~D~on't ask again" = "~V~airs naprasēt"
 # navigator/widgets/manager/delete_bookmark_dialog/delete_bookmark_dialog.nml:47
-"Delete bookmarks without asking from now on (Options > Confirmations)" = "Tuoļuok dzēst grovuotzeimis, naprasūt (Īstatejumi > Apstyprynuojumi)"
+"Delete bookmarks without asking from now on (Options > Confirmations)" = "Tuoļuok dzēst gruomotzeimis, naprasūt (Īstatejumi > Apstyprynuojumi)"
 # navigator/widgets/manager/dir_history_dialog/dir_history_dialog.nml:12
 "Directories History" = "Direktoreju viesture"
 # navigator/widgets/manager/dir_history_dialog/dir_history_dialog.nml:29
@@ -1220,7 +1220,7 @@ flag = "LV"
 # navigator/widgets/manager/manager/manager.nml:392
 "Change ~d~rive" = "~M~aineit disku"
 # navigator/widgets/manager/manager/manager.nml:393
-"Send this panel to a bookmarked directory" = "Puorvītuot itū paneli iz grovuotzeimis direktoreju"
+"Send this panel to a bookmarked directory" = "Puorvītuot itū paneli iz gruomotzeimis direktoreju"
 # navigator/widgets/manager/manager/manager.nml:394
 "Change direc~t~ory" = "Maineit direktorej~u~"
 # navigator/widgets/manager/manager/manager.nml:395
@@ -1236,7 +1236,7 @@ flag = "LV"
 # navigator/widgets/manager/manager/manager.nml:401
 "~Q~uick dirs..." = "Uotruos direktore~j~is..."
 # navigator/widgets/manager/manager/manager.nml:402
-"The bookmarks, for this panel" = "Grovuotzeimis itam panelim"
+"The bookmarks, for this panel" = "Gruomotzeimis itam panelim"
 # navigator/widgets/manager/manager/manager.nml:403
 "History of directories..." = "Direktoreju viesture..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:20
@@ -1492,7 +1492,7 @@ flag = "LV"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:26
 "Editor file sa~v~e" = "~S~aglobuot redaktorā"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:26
-"Delete ~b~ookmark" = "Dzēst ~g~rovuotzeimi"
+"Delete ~b~ookmark" = "Dzēst ~g~ruomotzeimi"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:26
 "Close command ~w~indow" = "Aiztaiseit komandys ~l~ūgu"
 # navigator/widgets/setup/country_page/country_page.nml:128
@@ -2458,7 +2458,7 @@ flag = "LV"
 # navigator/widgets/shell/main_menu/main_menu.nml:444
 "~M~anager" = "Puor~v~aldnīks"
 # navigator/widgets/shell/main_menu/main_menu.nml:447
-"New file managers, swapping and hiding panels, bookmarks" = "Jauni failu puorvaldnīki, paneļu apmaiņa i slēpšona, grovuotzeimis"
+"New file managers, swapping and hiding panels, bookmarks" = "Jauni failu puorvaldnīki, paneļu apmaiņa i slēpšona, gruomotzeimis"
 # navigator/widgets/shell/main_menu/main_menu.nml:450
 "~S~wap panels" = "~S~amainēt paneļus"
 # navigator/widgets/shell/main_menu/main_menu.nml:452
@@ -2474,13 +2474,13 @@ flag = "LV"
 # navigator/widgets/shell/main_menu/main_menu.nml:463
 "Browse in columns, each directory beside its parent" = "Puorlyukuot kolonuos, kotru direktoreju blokus juos vacuokajai"
 # navigator/widgets/shell/main_menu/main_menu.nml:465
-"Bookmarks le~f~t" = "~G~rovuotzeimis kreisajā"
+"Bookmarks le~f~t" = "~G~ruomotzeimis kreisajā"
 # navigator/widgets/shell/main_menu/main_menu.nml:467
-"Send the left panel to a bookmarked directory" = "Puorvītuot kreisū paneli iz grovuotzeimis direktoreju"
+"Send the left panel to a bookmarked directory" = "Puorvītuot kreisū paneli iz gruomotzeimis direktoreju"
 # navigator/widgets/shell/main_menu/main_menu.nml:468
-"Bookmarks rig~h~t" = "G~r~ovuotzeimis lobajā"
+"Bookmarks rig~h~t" = "G~r~uomotzeimis lobajā"
 # navigator/widgets/shell/main_menu/main_menu.nml:470
-"Send the right panel to a bookmarked directory" = "Puorvītuot lobū paneli iz grovuotzeimis direktoreju"
+"Send the right panel to a bookmarked directory" = "Puorvītuot lobū paneli iz gruomotzeimis direktoreju"
 # navigator/widgets/shell/main_menu/main_menu.nml:474
 "Settings, configuration files, the desktop and colours" = "Īstatejumi, konfiguracejis faili, dorbavērsma i kruosys"
 # navigator/widgets/shell/main_menu/main_menu.nml:477
@@ -4844,7 +4844,7 @@ flag = "LV"
 # navigator/widgets/manager/manager/helpers.py:134
 "View mode: {mode}" = "Skots: {mode}"
 # navigator/widgets/manager/manager/helpers.py:186
-"Mounted now, not a bookmark" = "Itūšaļt pīmontāts, nav grovuotzeime"
+"Mounted now, not a bookmark" = "Itūšaļt pīmontāts, nav gruomotzeime"
 # navigator/widgets/manager/manager/helpers.py:188
 "Not there now" = "Itūšaļt nav pīejams"
 # navigator/widgets/manager/manager/helpers.py:290
@@ -4992,11 +4992,11 @@ flag = "LV"
 # navigator/widgets/manager/manager/navigation.py:220
 "~C~lose tree" = "~A~iztaiseit kūku"
 # navigator/widgets/manager/manager/navigation.py:354
-"Bookmarks" = "Grovuotzeimis"
+"Bookmarks" = "Gruomotzeimis"
 # navigator/widgets/manager/manager/navigation.py:131
-"Store this directory\nas bookmark {slot}?" = "Saglobuot itū direktoreju\nkai grovuotzeimi {slot}?"
+"Store this directory\nas bookmark {slot}?" = "Saglobuot itū direktoreju\nkai gruomotzeimi {slot}?"
 # navigator/widgets/manager/manager/navigation.py:339
-"A place inside an archive cannot be bookmarked" = "Vītu arhiva īškīnē navar pīvīnuot grovuotzeimem"
+"A place inside an archive cannot be bookmarked" = "Vītu arhiva īškīnē navar pīvīnuot gruomotzeimem"
 # navigator/widgets/manager/manager/navigation.py:178
 "and below" = "i zamuok"
 # navigator/widgets/manager/manager/navigation.py:357
@@ -6554,7 +6554,7 @@ flag = "LV"
 # navigator/settings.py
 "Ask before the editor's F2 (Ctrl+S) saves a file" = "Vaicuot, pyrma redaktora F2 (Ctrl+S) saglobuoj failu"
 # navigator/settings.py
-"Ask before Del in the bookmarks box deletes a bookmark" = "Vaicuot, pyrma Del grovuotzeimu lūgā dzēš grovuotzeimi"
+"Ask before Del in the bookmarks box deletes a bookmark" = "Vaicuot, pyrma Del gruomotzeimu lūgā dzēš gruomotzeimi"
 # navigator/settings.py
 "Ask before closing a window whose command is still running" = "Vaicuot pyrma lūga aiztaiseišonys, kura komanda vēļ dorbojās"
 # navigator/settings.py
