@@ -16,7 +16,7 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
   `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv, ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn and fa/hy, is/mk (`_one_but_eleven`: one for 1, 21, 31, 101, never 11), he, ar, ja/zh/ko and id/ms/vi/th (one form, no
+  `PLURAL_RULES` (en, lv and ltg (Latgalian: CLDR has none, it counts as Latvian does), ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn and fa/hy, is/mk (`_one_but_eleven`: one for 1, 21, 31, 101, never 11), he, ar, ja/zh/ko and id/ms/vi/th (one form, no
   plural); anything else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu, fil, ur, az, kk, uz, ka, gl, ca, eu, sq -- counts like English; Turkish,
   Hungarian, Filipino, Bengali, Persian, Azerbaijani, Kazakh, Uzbek and Georgian write both forms the same, a noun after a number staying as it is).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
@@ -101,7 +101,8 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   Armenian and Kazakh need no table: Alt with their own layout types the marked letter.
   A letter typed through a **dead key** never carries a hotkey, Alt cannot press it: Catalan, Galician and Basque
   have none on `á à é è í ï ó ò ú ü` (`ç`, `ñ` have keys of their own; Catalan's `l·l` never on the `·`), Icelandic
-  none on `á é í ó ú ý` (`ð þ æ ö` are allowed, ASCII preferred). Albanian's `ë`/`ç` and Macedonian's and
+  none on `á é í ó ú ý` (`ð þ æ ö` are allowed, ASCII preferred). Latgalian never on `ō` (no key on a
+  Latvian layout), its other marked letters allowed, ASCII preferred. Albanian's `ë`/`ç` and Macedonian's and
   Belarusian's own Cyrillic letters are on keys of their own and allowed, common letters preferred.
   **A crowded scope** can need more distinct letters than the language's words give (Options > Editor/Viewer has
   24 captions, Options > Interface 23): reword a caption to bring a new letter (`"Zona alta"`, `"Realça la

@@ -1,0 +1,805 @@
+[meta]
+name = "Latgaļu volūda"
+flag = "LV"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:90
+"~Y~es" = "~J~ā"
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
+"O~K~" = "O~K~"
+# navml/widgets/dialog/dialog/dialog.nml:96
+"~N~o" = "~N~ā"
+# navml/widgets/dialog/dialog/dialog.nml:103
+"~C~ancel" = "~A~tceļt"
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
+"~H~elp" = "~P~aleigs"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
+"Open file" = "Attaiseit failu"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
+"~N~ame" = "~V~uords"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
+"~D~irectories" = "~D~irektorejis"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
+"~F~iles" = "~F~aili"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
+"Cancel" = "Atceļt"
+# navml/widgets/window_manager/window_manager.nml:19
+"Windows Manager" = "Lūgu puorvaldnīks"
+# navml/widgets/window_manager/window_manager.nml:26
+"~W~indows" = "~L~ūgi"
+# navml/widgets/window_manager/window_manager.nml:55
+"C~l~ose" = "~S~lēgt"
+# navml/calendars.py:75
+"January" = "Janvars"
+# navml/calendars.py:75
+"February" = "Februars"
+# navml/calendars.py:75
+"March" = "Marts"
+# navml/calendars.py:75
+"April" = "Apreļs"
+# navml/calendars.py:75
+"May" = "Maijs"
+# navml/calendars.py:75
+"June" = "Jūnijs"
+# navml/calendars.py:76
+"July" = "Jūlijs"
+# navml/calendars.py:76
+"August" = "Augusts"
+# navml/calendars.py:76
+"September" = "Septembris"
+# navml/calendars.py:76
+"October" = "Oktobris"
+# navml/calendars.py:76
+"November" = "Novembris"
+# navml/calendars.py:77
+"December" = "Decembris"
+# navml/calendars.py:274
+"~G~regorian" = "~G~regora"
+# navml/calendars.py:300
+"~J~ulian" = "~J~ūlija"
+# navml/calendars.py:343
+"~H~ebrew" = "~E~breju"
+# navml/calendars.py:438
+"~I~slamic (tabular)" = "~I~slama (tabulys)"
+# navml/calendars.py:527
+"Islamic (~U~mm al-Qura)" = "Islama (~U~mm al-Kurā)"
+# navml/calendars.py:544
+"Islamic (Di~y~anet, Turkey)" = "Islama (Dijanet, Tur~c~eja)"
+# navml/calendars.py:559
+"Islamic (~M~ABIMS, Indonesia)" = "Islama (MABIMS, Ind~o~nezeja)"
+# navml/calendars.py:574
+"Islamic (MABIMS, Malay~s~ia)" = "Islama (MABIMS, Malai~z~eja)"
+# navml/calendars.py:591
+"~P~ersian" = "~P~ersīšu"
+# navml/calendars.py:640
+"In~d~ian national (Saka)" = "In~d~ejis nacionalais (Šaka)"
+# navml/calendars.py:687
+"~C~optic" = "~K~optu"
+# navml/calendars.py:732
+"~E~thiopian" = "E~t~iopīšu"
+# navml/calendars.py:767
+"Chi~n~ese" = "Ķei~n~īšu"
+# navml/calendars.py:865
+"Spring Festival" = "Pavasara svātki"
+# navml/calendars.py:881
+"~K~orean" = "Ko~r~ejīšu"
+# navml/calendars.py:884
+"Seollal" = "Sollala"
+# navml/calendars.py:898
+"~V~ietnamese" = "~V~jetnamīšu"
+# navml/calendars.py:906
+"Tết" = "Tets"
+# navml/calendars.py:930
+"J~a~panese" = "J~a~puoņu"
+# navml/calendars.py:968
+"~T~hai solar" = "Taizemis (~b~udistu)"
+# navml/calendars.py:986
+"~R~OC (Minguo)" = "~M~iņgo (Taivana)"
+# navml/calendars.py:1009
+"~B~engali (Bangladesh)" = "Ben~g~aļu (Bangladeša)"
+# navml/calendars.py:1064
+"Nepa~l~i (Bikram Sambat)" = "Nepa~l~is (Bikram Sambat)"
+# navml/calendars.py:1124
+"Badíʿ (Baháʼí)" = "Badī (bahajīšu)"
+# navml/calendars.py:1201
+"Burmese (Myanmar)" = "Birmys (Mjanma)"
+# navml/calendars.py:1336
+"Tibetan (Phugpa)" = "Tibetys (Phugpa)"
+# navml/calendars.py:1484
+"A~f~ghan Solar Hijri" = "A~f~ganistanys Saulis hidžra"
+# navml/calendars.py:1516
+"Khmer, Thai, La~o~ lunar" = "K~h~meru, taju, laosīšu mieneša"
+# navml/calendars.py:404
+"Nisan" = "Nisans"
+# navml/calendars.py:404
+"Iyyar" = "Ijars"
+# navml/calendars.py:404
+"Sivan" = "Sivans"
+# navml/calendars.py:404
+"Tammuz" = "Tamuzs"
+# navml/calendars.py:404
+"Av" = "Avs"
+# navml/calendars.py:404
+"Elul" = "Eluls"
+# navml/calendars.py:405
+"Tishri" = "Tišri"
+# navml/calendars.py:405
+"Heshvan" = "Hešvans"
+# navml/calendars.py:405
+"Kislev" = "Kislevs"
+# navml/calendars.py:405
+"Tevet" = "Tevets"
+# navml/calendars.py:405
+"Shevat" = "Ševats"
+# navml/calendars.py:406
+"Adar II" = "Adars II"
+# navml/calendars.py:460
+"Muharram" = "Muharams"
+# navml/calendars.py:460
+"Safar" = "Safars"
+# navml/calendars.py:460
+"Rabi' I" = "Rabī I"
+# navml/calendars.py:460
+"Rabi' II" = "Rabī II"
+# navml/calendars.py:460
+"Jumada I" = "Džumāda I"
+# navml/calendars.py:460
+"Jumada II" = "Džumāda II"
+# navml/calendars.py:461
+"Rajab" = "Radžabs"
+# navml/calendars.py:461
+"Sha'ban" = "Šabans"
+# navml/calendars.py:461
+"Ramadan" = "Ramadāns"
+# navml/calendars.py:461
+"Shawwal" = "Šavvāls"
+# navml/calendars.py:461
+"Dhu'l-Qa'da" = "Zū al-Kada"
+# navml/calendars.py:461
+"Dhu'l-Hijja" = "Zū al-Hidža"
+# navml/calendars.py:627
+"Farvardin" = "Farvardins"
+# navml/calendars.py:627
+"Ordibehesht" = "Ordibehešts"
+# navml/calendars.py:627
+"Khordad" = "Hordāds"
+# navml/calendars.py:627
+"Tir" = "Tīrs"
+# navml/calendars.py:627
+"Mordad" = "Mordāds"
+# navml/calendars.py:627
+"Shahrivar" = "Šahrivars"
+# navml/calendars.py:628
+"Mehr" = "Mehrs"
+# navml/calendars.py:628
+"Aban" = "Ābāns"
+# navml/calendars.py:628
+"Azar" = "Āzars"
+# navml/calendars.py:628
+"Dey" = "Dejs"
+# navml/calendars.py:628
+"Bahman" = "Bahmans"
+# navml/calendars.py:628
+"Esfand" = "Esfands"
+# navml/calendars.py:672
+"Chaitra" = "Čaitra"
+# navml/calendars.py:672
+"Vaishakha" = "Vaišākha"
+# navml/calendars.py:672
+"Jyeshtha" = "Džjēštha"
+# navml/calendars.py:672
+"Ashadha" = "Āšādha"
+# navml/calendars.py:672
+"Shravana" = "Šrāvana"
+# navml/calendars.py:672
+"Bhadra" = "Bhādra"
+# navml/calendars.py:673
+"Ashvin" = "Āšvina"
+# navml/calendars.py:673
+"Kartika" = "Kārtika"
+# navml/calendars.py:673
+"Agrahayana" = "Agrahājana"
+# navml/calendars.py:673
+"Pausha" = "Pauša"
+# navml/calendars.py:673
+"Magha" = "Māgha"
+# navml/calendars.py:673
+"Phalguna" = "Phālguna"
+# navml/calendars.py:717
+"Thout" = "Tūts"
+# navml/calendars.py:717
+"Paopi" = "Paopi"
+# navml/calendars.py:717
+"Hathor" = "Hators"
+# navml/calendars.py:717
+"Koiak" = "Kojaks"
+# navml/calendars.py:717
+"Tobi" = "Tobi"
+# navml/calendars.py:717
+"Meshir" = "Mešīrs"
+# navml/calendars.py:717
+"Paremhat" = "Paremhats"
+# navml/calendars.py:718
+"Parmouti" = "Parmuti"
+# navml/calendars.py:718
+"Pashons" = "Pašonss"
+# navml/calendars.py:718
+"Paoni" = "Paoni"
+# navml/calendars.py:718
+"Epip" = "Epips"
+# navml/calendars.py:718
+"Mesori" = "Mesori"
+# navml/calendars.py:718
+"Nasie" = "Nasie"
+# navml/calendars.py:742
+"Meskerem" = "Meskerems"
+# navml/calendars.py:742
+"Tikimt" = "Tikimts"
+# navml/calendars.py:742
+"Hidar" = "Hidars"
+# navml/calendars.py:742
+"Tahsas" = "Tahsass"
+# navml/calendars.py:742
+"Ter" = "Ters"
+# navml/calendars.py:742
+"Yekatit" = "Jekatits"
+# navml/calendars.py:742
+"Megabit" = "Megabits"
+# navml/calendars.py:743
+"Miyazya" = "Mijazja"
+# navml/calendars.py:743
+"Ginbot" = "Ginbots"
+# navml/calendars.py:743
+"Sene" = "Sene"
+# navml/calendars.py:743
+"Hamle" = "Hamle"
+# navml/calendars.py:743
+"Nehase" = "Nehase"
+# navml/calendars.py:743
+"Pagume" = "Pagume"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 1" = "1. mieness"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 2" = "2. mieness"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 3" = "3. mieness"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 4" = "4. mieness"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 5" = "5. mieness"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 6" = "6. mieness"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 7" = "7. mieness"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 8" = "8. mieness"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 9" = "9. mieness"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 10" = "10. mieness"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 11" = "11. mieness"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 12" = "12. mieness"
+# navml/calendars.py:848
+"Jiǎ" = "Jiǎ"
+# navml/calendars.py:848
+"Yǐ" = "Yǐ"
+# navml/calendars.py:848
+"Bǐng" = "Bǐng"
+# navml/calendars.py:848
+"Dīng" = "Dīng"
+# navml/calendars.py:848
+"Wù" = "Wù"
+# navml/calendars.py:848
+"Jǐ" = "Jǐ"
+# navml/calendars.py:848
+"Gēng" = "Gēng"
+# navml/calendars.py:848
+"Xīn" = "Xīn"
+# navml/calendars.py:849
+"Rén" = "Rén"
+# navml/calendars.py:849
+"Guǐ" = "Guǐ"
+# navml/calendars.py:850
+"Zǐ" = "Zǐ"
+# navml/calendars.py:850
+"Chǒu" = "Chǒu"
+# navml/calendars.py:850
+"Yín" = "Yín"
+# navml/calendars.py:850
+"Mǎo" = "Mǎo"
+# navml/calendars.py:850
+"Chén" = "Chén"
+# navml/calendars.py:850
+"Sì" = "Sì"
+# navml/calendars.py:850
+"Wǔ" = "Wǔ"
+# navml/calendars.py:850
+"Wèi" = "Wèi"
+# navml/calendars.py:851
+"Shēn" = "Shēn"
+# navml/calendars.py:851
+"Yǒu" = "Yǒu"
+# navml/calendars.py:851
+"Xū" = "Xū"
+# navml/calendars.py:851
+"Hài" = "Hài"
+# navml/calendars.py:861
+"Rat" = "Žurkys"
+# navml/calendars.py:861
+"Ox" = "Vārša"
+# navml/calendars.py:861
+"Tiger" = "Tīģera"
+# navml/calendars.py:861
+"Rabbit" = "Truša"
+# navml/calendars.py:861
+"Dragon" = "Pyuķa"
+# navml/calendars.py:861
+"Snake" = "Čyuskys"
+# navml/calendars.py:861
+"Horse" = "Zyrga"
+# navml/calendars.py:862
+"Goat" = "Kazys"
+# navml/calendars.py:862
+"Monkey" = "Pārtiķa"
+# navml/calendars.py:862
+"Rooster" = "Gaiļa"
+# navml/calendars.py:862
+"Dog" = "Suņa"
+# navml/calendars.py:862
+"Pig" = "Cyukys"
+# navml/calendars.py:902
+"Buffalo" = "Bifeļa"
+# navml/calendars.py:902
+"Cat" = "Kaķa"
+# navml/calendars.py:940
+"Meiji" = "Meidzi"
+# navml/calendars.py:940
+"Taishō" = "Taišo"
+# navml/calendars.py:940
+"Shōwa" = "Šova"
+# navml/calendars.py:940
+"Heisei" = "Heisei"
+# navml/calendars.py:940
+"Reiwa" = "Reiva"
+# navml/calendars.py:1042
+"Boishakh" = "Boišakhs"
+# navml/calendars.py:1042
+"Joishtho" = "Džoištho"
+# navml/calendars.py:1042
+"Asharh" = "Ašarhs"
+# navml/calendars.py:1042
+"Shrabon" = "Šrabons"
+# navml/calendars.py:1042
+"Bhadro" = "Bhadro"
+# navml/calendars.py:1042
+"Ashwin" = "Ašvins"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Kartik" = "Kartiks"
+# navml/calendars.py:1043
+"Ogrohayon" = "Ogrohajons"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Poush" = "Poušs"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Magh" = "Maghs"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Falgun" = "Falguns"
+# navml/calendars.py:1043
+"Choitro" = "Čoitro"
+# navml/calendars.py:1100
+"Baisakh" = "Baisakhs"
+# navml/calendars.py:1100
+"Jestha" = "Džestha"
+# navml/calendars.py:1100
+"Asar" = "Asars"
+# navml/calendars.py:1100
+"Shrawan" = "Šravans"
+# navml/calendars.py:1100
+"Bhadau" = "Bhadau"
+# navml/calendars.py:1100
+"Asoj" = "Asodžs"
+# navml/calendars.py:1101
+"Mangsir" = "Mangsirs"
+# navml/calendars.py:1101
+"Chait" = "Čaits"
+# navml/calendars.py:1106
+"Computed: Nepal's almanac may differ by a day" = "Aprēķinuots: Nepalys almanahs var atsaškiert par dīnu"
+# navml/calendars.py:1169
+"Bahá" = "Bahā"
+# navml/calendars.py:1169
+"Jalál" = "Džalāls"
+# navml/calendars.py:1169
+"Jamál" = "Džamāls"
+# navml/calendars.py:1169
+"ʿAẓamat" = "Azamats"
+# navml/calendars.py:1169
+"Núr" = "Nūrs"
+# navml/calendars.py:1169
+"Raḥmat" = "Rahmats"
+# navml/calendars.py:1169
+"Kalimát" = "Kalimāts"
+# navml/calendars.py:1170
+"Kamál" = "Kamāls"
+# navml/calendars.py:1170
+"Asmáʼ" = "Asmā"
+# navml/calendars.py:1170
+"ʿIzzat" = "Izzats"
+# navml/calendars.py:1170
+"Mashíyyat" = "Mašījats"
+# navml/calendars.py:1170
+"ʿIlm" = "Ilms"
+# navml/calendars.py:1170
+"Qudrat" = "Kudrats"
+# navml/calendars.py:1170
+"Qawl" = "Kauls"
+# navml/calendars.py:1171
+"Masáʼil" = "Masāils"
+# navml/calendars.py:1171
+"Sharaf" = "Šarafs"
+# navml/calendars.py:1171
+"Sulṭán" = "Sultāns"
+# navml/calendars.py:1171
+"Mulk" = "Mulks"
+# navml/calendars.py:1171
+"Ayyám-i-Há" = "Ajjāmi-Hā"
+# navml/calendars.py:1171
+"ʿAláʼ" = "Alā"
+# navml/calendars.py:1295
+"Tagu" = "Tagu"
+# navml/calendars.py:1295
+"Kason" = "Kasons"
+# navml/calendars.py:1295
+"Nayon" = "Najons"
+# navml/calendars.py:1295
+"First Waso" = "Vazo I"
+# navml/calendars.py:1295
+"Waso" = "Vazo"
+# navml/calendars.py:1295
+"Wagaung" = "Vagauns"
+# navml/calendars.py:1296
+"Tawthalin" = "Todalins"
+# navml/calendars.py:1296
+"Thadingyut" = "Tadindžu"
+# navml/calendars.py:1296
+"Tazaungmon" = "Tazaunmons"
+# navml/calendars.py:1296
+"Nadaw" = "Nado"
+# navml/calendars.py:1296
+"Pyatho" = "Pjato"
+# navml/calendars.py:1297
+"Tabodwe" = "Tabodve"
+# navml/calendars.py:1297
+"Tabaung" = "Tabauns"
+# navml/calendars.py:1300
+"Second Waso" = "Vazo II"
+# navml/calendars.py:1456
+"Wood" = "Kūks"
+# navml/calendars.py:1456
+"Fire" = "Guņs"
+# navml/calendars.py:1456
+"Earth" = "Zeme"
+# navml/calendars.py:1456
+"Iron" = "Dzeļzs"
+# navml/calendars.py:1456
+"Water" = "Iudiņs"
+# navml/calendars.py:1488
+"Hamal" = "Hamals"
+# navml/calendars.py:1488
+"Sawr" = "Saurs"
+# navml/calendars.py:1488
+"Jawza" = "Džauza"
+# navml/calendars.py:1488
+"Saratan" = "Saratans"
+# navml/calendars.py:1488
+"Asad" = "Asads"
+# navml/calendars.py:1488
+"Sonbola" = "Sunbula"
+# navml/calendars.py:1489
+"Mizan" = "Mizans"
+# navml/calendars.py:1489
+"Aqrab" = "Akrabs"
+# navml/calendars.py:1489
+"Qaws" = "Kauss"
+# navml/calendars.py:1489
+"Jadi" = "Džadi"
+# navml/calendars.py:1489
+"Dalw" = "Dalvs"
+# navml/calendars.py:1489
+"Hut" = "Hūts"
+# navml/calendars.py:1657
+"Pisakh" = "Pisaks"
+# navml/calendars.py:1657
+"Jesth" = "Džests"
+# navml/calendars.py:1657
+"Asadh" = "Asads"
+# navml/calendars.py:1658
+"Pathamasadh" = "Patamasads"
+# navml/calendars.py:1658
+"Tutiyasadh" = "Tutijasads"
+# navml/calendars.py:1658
+"Srap" = "Sraps"
+# navml/calendars.py:1659
+"Phatrabot" = "Patrabots"
+# navml/calendars.py:1659
+"Assoch" = "Asočs"
+# navml/calendars.py:1659
+"Kadeuk" = "Kadeuks"
+# navml/calendars.py:1660
+"Migasir" = "Migasirs"
+# navml/calendars.py:1660
+"Boss" = "Boss"
+# navml/calendars.py:1660
+"Meak" = "Meaks"
+# navml/calendars.py:1660
+"Phalkun" = "Palkuns"
+# navml/calendars.py:1661
+"Cheit" = "Čeits"
+# navml/calendars.py:261
+"{day} {month} {year}" = "{day}. {month} {year}"
+# navml/calendars.py:324
+"Easter (Orthodox)" = "Leldīnys (pareizticeigūs)"
+# navml/calendars.py:326
+"Easter (Western)" = "Leldīnys (vokoru)"
+# navml/calendars.py:406
+"Adar I" = "Adars I"
+# navml/calendars.py:406
+"Adar" = "Adars"
+# navml/calendars.py:511
+"Computed: the published calendar may differ by a day" = "Aprēķinuots: publicātais kalendars var atsaškiert par dīnu"
+# navml/calendars.py:853
+"{stem}-{branch}, year of the {animal}" = "{stem}-{branch}, {animal} gods"
+# navml/calendars.py:954, navml/calendars.py:975, navml/calendars.py:995
+"{label} ({year})" = "{label} ({year})"
+# navml/calendars.py:1176
+"Naw-Rúz" = "Navruzs"
+# navml/calendars.py:1178
+"Computed: not yet published by the Baháʼí World Centre" = "Aprēķinuots: Bahajīšu Pasauļa centrs vēļ nav publicējs"
+# navml/calendars.py:1309, navml/calendars.py:1674
+"Full moon" = "Pylnmieness"
+# navml/calendars.py:1461
+"Losar" = "Losars"
+# navml/calendars.py:1464
+"Doubled day" = "Divkuoršuo dīna"
+# navml/calendars.py:950
+"{era} {year}" = "{era} {year}"
+# navml/calendars.py:972
+"{year} BE" = "{year}. BĒ"
+# navml/calendars.py:992
+"{year} before ROC" = "{year} pyrms Miņgo"
+# navml/calendars.py:1311, navml/calendars.py:1691
+"New moon" = "Jauns mieness"
+# navml/calendars.py:1468
+"{element} {animal} year" = "{element} {animal} gods"
+# navml/calendars.py:1677
+"Asalha Puja" = "Asalha pūdža"
+# navml/calendars.py:830, navml/calendars.py:1449
+"Leap {number}" = "{number}. papyldu"
+# navml/calendars.py:991
+"ROC {year}" = "Miņgo {year}"
+# navml/calendars.py:1467
+"Day {number} is skipped" = "{number}. dīna izlaista"
+# navml/calendars.py:1679
+"Magha Puja" = "Magha pūdža"
+# navml/calendars.py:1315
+"Myanmar New Year's Day, {year} ME" = "Mjanmys Jaunais gods, {year}"
+# navml/calendars.py:1681
+"Vesak" = "Vesaks"
+# navml/calendars.py:1683
+"Magha Puja (Cambodia)" = "Magha pūdža (Kambodža)"
+# navml/calendars.py:1685
+"Magha Puja (Thailand, Laos)" = "Magha pūdža (Taizeme, Laosa)"
+# navml/calendars.py:1687
+"Vesak (Cambodia)" = "Vesaks (Kambodža)"
+# navml/calendars.py:1689
+"Vesak (Thailand, Laos)" = "Vesaks (Taizeme, Laosa)"
+# navml/commands.py:30, navml/widgets/window/window.py:318
+"Close" = "Slēgt"
+# navml/commands.py:36, navml/widgets/window/window.py:320
+"Zoom" = "Izvērst"
+# navml/commands.py:76
+"List" = "Saroksts"
+# navml/commands.py:86
+"Tile" = "Izkluot"
+# navml/commands.py:95
+"Cascade" = "Kaskade"
+# navml/commands.py:105
+"Close all" = "Aiztaiseit vysus"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "Nav attaiseits nivīna lūga"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "Nivīnu lūgu navar izkuortuot"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "Nivīnu lūgu navar aiztaiseit"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "Itū lūgu navar izvērst"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "Itū lūgu navar aiztaiseit"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "Nav lūga ar numeru {number}"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "Malna"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "Zyla"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "Zaļa"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "Cianzyla"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "Sorkona"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "Purpursorkona"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "Bryuna"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "Gaiši pelāka"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "Tumši pelāka"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "Gaiši zyla"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "Gaiši zaļa"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "Gaiši cianzyla"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "Gaiši sorkona"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "Gaiši purpursorkona"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "Dzaltona"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "Bolta"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " Teksts "
+# navml/widgets/dialog/commands.py:27
+"OK" = "OK"
+# navml/widgets/dialog/commands.py:41
+"Help" = "Paleigs"
+# navml/widgets/dialog/commands.py:55
+"Next tab" = "Nuokamuo šķierkle"
+# navml/widgets/dialog/commands.py:61
+"Previous tab" = "Īprīkšejuo šķierkle"
+# navml/widgets/dialog/commands.py:74
+"Search" = "Meklēt"
+# navml/widgets/dialog/commands.py:92
+"Cut" = "Izgrīzt"
+# navml/widgets/dialog/commands.py:98
+"Copy" = "Kopēt"
+# navml/widgets/dialog/commands.py:104
+"Paste" = "Īlimēt"
+# navml/widgets/dialog/commands.py:110
+"Clear" = "Nūteireit"
+# navml/widgets/dialog/commands.py:120
+"Select all" = "Atlaseit vysu"
+# navml/widgets/dialog/commands.py:133
+"Previous month" = "Īprīkšejais mieness"
+# navml/widgets/dialog/commands.py:139
+"Next month" = "Nuokamais mieness"
+# navml/widgets/dialog/commands.py:145
+"Previous year" = "Īprīkšejais gods"
+# navml/widgets/dialog/commands.py:151
+"Next year" = "Nuokamais gods"
+# navml/widgets/dialog/commands.py:157
+"Choose month" = "Izalaseit mienesi"
+# navml/widgets/dialog/commands.py:163
+"Choose year" = "Izalaseit godu"
+# navml/widgets/dialog/commands.py:169
+"Go to current date" = "Iz šudiņdīnys datumu"
+# navml/widgets/dialog/commands.py:178
+"Calendar system" = "Kalendara sistema"
+# navml/widgets/dialog/commands.py:190
+"Calendar view" = "Kalendara skots"
+# navml/widgets/dialog/commands.py:200
+"Swap calendars" = "Samainēt kalendarus"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Mo" = "Pr"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Tu" = "Ūt"
+# navml/widgets/dialog/date_button/date_button.py:106
+"We" = "Tr"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Th" = "Ct"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Fr" = "Pk"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Sa" = "Ss"
+# navml/widgets/dialog/date_button/date_button.py:106
+"Su" = "Sv"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "Pyrmūdīne"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "Ūtardīne"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "Trešdīne"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "Catūrtdīne"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "Pīktdīne"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "Sastdīne"
+# navml/widgets/dialog/date_button/date_button.py:112
+"Sunday" = "Svātdīne"
+# navml/widgets/dialog/date_button/date_button.py:425
+"Month" = "Mien."
+# navml/widgets/dialog/date_button/date_button.py:425
+"Year" = "Gods"
+# navml/widgets/dialog/date_button/date_button.py:426
+"Choose" = "Izlase"
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
+"Today" = "Šudiņ"
+# navml/widgets/dialog/date_button/date_button.py:460
+"The month before" = "Īprīkšejais mieness"
+# navml/widgets/dialog/date_button/date_button.py:462
+"The month after" = "Nuokamais mieness"
+# navml/widgets/dialog/date_button/date_button.py:464
+"A click chooses the month" = "Klikšķs izalasa mienesi"
+# navml/widgets/dialog/date_button/date_button.py:466
+"A click chooses the year" = "Klikšķs izalasa godu"
+# navml/widgets/dialog/date_button/date_button.py:473
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, {week}. nedeļa"
+# navml/widgets/dialog/date_button/date_button.py:484
+"{n} day from today" = ["piec {n} dīnys", "piec {n} dīnom", "piec {n} dīnom"]
+# navml/widgets/dialog/date_button/date_button.py:486
+"{n} day ago" = ["pyrma {n} dīnys", "pyrma {n} dīnom", "pyrma {n} dīnom"]
+# navml/widgets/dialog/dialog/dialog.py:290
+"Enter accepts, Escape dismisses." = "Enter apstyprynoj, Escape atceļ."
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
+"Invalid file name." = "Nadereigs faila vuords."
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
+"Invalid drive or directory." = "Nadereigs disks voi direktoreja."
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
+"Error" = "Klaida"
+# navml/widgets/dialog/file_list/file_list.py:213
+"Directory" = "Direktoreja"
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+" Search: " = " Meklēt: "
+# navml/widgets/dialog/history/history.py:114
+"Choose from the list ({key})" = "Izalaseit nu saroksta ({key})"
+# navml/widgets/dialog/history/history.py:116
+"Earlier entries ({key})" = "Agruokī īroksti ({key})"
+# navml/widgets/dialog/input_line/input_line.py:418
+"The line cannot be changed now" = "Rindu itūšaļt navar maineit"
+# navml/widgets/dialog/input_line/input_line.py:449
+"Cu~t~" = "~I~zgrīzt"
+# navml/widgets/dialog/input_line/input_line.py:450
+"~C~opy" = "~K~opēt"
+# navml/widgets/dialog/input_line/input_line.py:451
+"~P~aste" = "Ī~l~imēt"
+# navml/widgets/dialog/input_line/input_line.py:452
+"C~l~ear" = "~T~eireit"
+# navml/widgets/dialog/input_line/input_line.py:454
+"Select ~a~ll" = "Atlaseit ~v~ysu"
+# navml/widgets/dialog/input_line/input_line.py:420
+"Nothing is selected" = "Nikas nav atlaseits"
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
+"The line is empty" = "Rinda ir tukša"
+# navml/widgets/dialog/input_line/input_line.py:427
+"All of it is selected" = "Vyss jau ir atlaseits"
+# navml/widgets/dialog/tab_view/tab_view.py:153
+"Tabs" = "Šķierklis"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Earlier tabs" = "Īprīkšejuos šķierklis"
+# navml/widgets/dialog/tab_view/tab_view.py:418
+"Later tabs" = "Nuokamuos šķierklis"
+# navml/widgets/dialog/tree_view/tree_view.py:582
+"Next" = "Nuokamais"
+# navml/widgets/menu/commands.py:14
+"Menu" = "Izvēlne"
+# navml/widgets/progress_bar/progress_bar.py:64
+"{done} of {total} done ({percent}%), {rest} to go" = "Padareits {done} nu {total} ({percent}%), palics {rest}"
+# navml/widgets/window/window.py:340
+"A double click zooms, a drag moves" = "Dubultklikšķs izvērš, vylkšona puorvītoj"
+# navml/widgets/window/window.py:342
+"A drag moves" = "Vylkšona puorvītoj"
+# navml/widgets/window/window.py:381
+"Move" = "Puorvītuot"
+# navml/widgets/window/window.py:381
+"Size" = "Lelums"
+# navml/widgets/window/window.py:381
+"Keep" = "Paturēt"
+# navml/widgets/window/window.py:381
+"Undo" = "Atsaukt"
+# navml/widgets/window/window.py:320
+"Restore" = "Atjaunuot"
+# navml/widgets/window/window.py:322
+"Drag to resize" = "Vylkit, kab maineitu lelumu"

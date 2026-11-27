@@ -148,6 +148,11 @@ def test_latvian_has_three_forms(latvian, n, text):
     assert tr_n("{n} file", "{n} files", n) == text
 
 
+def test_latgalian_counts_as_latvian():
+    assert [plural_form("ltg", n) for n in (1, 21, 2, 0, 11, 10, 111)] == [
+        plural_form("lv", n) for n in (1, 21, 2, 0, 11, 10, 111)] == [0, 0, 1, 2, 2, 2, 2]
+
+
 def test_russian_rule():
     assert [plural_form("ru", n) for n in (1, 2, 5, 11, 21, 22, 25)] == [0, 1, 2, 2, 0, 1, 2]
 

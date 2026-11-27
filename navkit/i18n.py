@@ -482,6 +482,9 @@ def _single(n: int) -> int:
 PLURAL_RULES: dict[str, Callable[[int], int]] = {
     "en": _english,
     "lv": _latvian,
+    # Latgalian: CLDR has no rule; it counts as Latvian does -- "1 fails",
+    # "2 faili", "10 failu".
+    "ltg": _latvian,
     "ru": _slavic,
     "uk": _slavic,
     "be": _slavic,
