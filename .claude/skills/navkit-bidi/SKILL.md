@@ -20,7 +20,7 @@ language reads its screen right to left). It is the second standing exception be
 - Arabic is shaped by `arabic-reshaper` **with ligatures off** (one letter in, one form out, indices kept); lam+alef
   is folded into its ligature by `_shape`, keeping the lam's index. Marks are folded into the letter before them
   before ordering, so a reversed run cannot put niqqud/harakat first. Brackets are mirrored at odd levels (L4).
-  Persian and Urdu go through the same reshaper (پ چ ژ گ ک ی, ٹ ڈ ڑ ں ہ ے ھ); Persian's ZWNJ (U+200C, `می‌شود`)
+  Persian, Dari (`fa_AF`, Persian's letters) and Urdu go through the same reshaper (پ چ ژ گ ک ی, ٹ ڈ ڑ ں ہ ے ھ); Persian's ZWNJ (U+200C, `می‌شود`)
   breaks the joining and takes zero cells. A terminal has no Nastaliq: Urdu shows in Naskh-style shapes.
 - python-bidi is **held below 0.5**: 0.5+ is a Rust extension returning only the display string; Navigator needs each
   character's place (style, caret) and the Linux packages are `arch: all`. Its `bidi.algorithm` steps are run one by
@@ -147,7 +147,7 @@ language reads its screen right to left). It is the second standing exception be
   in text order, deleted wholly, replaced at its first index; `selection` is its first..last for callers that want a
   range. Plain text keeps the index arithmetic.
 - Direction: `Application.direction` (`auto`/`ltr`/`rtl`); `auto` is `i18n.is_rtl()`, a catalogue's
-  `[meta] direction = "rtl"` (he, ar, fa, ur). Set from `[interface] direction` (Options > Settings > Interface, *Text
+  `[meta] direction = "rtl"` (he, ar, fa, fa_AF, ur). Set from `[interface] direction` (Options > Settings > Interface, *Text
   direction*, applied at once by `Shell.settings`), which `--direction` overrides for a session. A change -- of it or
   of the language -- repaints everything (no underlay reuse), mirrored or not on the next frame (tested both ways,
   and dragging and sizing a window on a mirrored screen, `tests/test_windows.py`).

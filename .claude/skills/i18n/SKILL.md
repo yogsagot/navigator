@@ -14,11 +14,12 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
 - **`navkit/i18n.py`**: `tr(text)`, `tr_n(singular, plural, n, **values)` (formats `{n}` and the values),
   `tr_plain(text)` (lookup ignoring `~` hotkey marks -- what menu anchors use), `LOCALE.code` (reactive),
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
-  `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
+  `flags()` (`{code: [meta] flag}`, two letters, English `GB`; a catalogue may have none, Kurmanji's, and its name shows alone) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv and ltg (Latgalian: CLDR has none, it counts as Latvian does), ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn and fa/hy, is/mk (`_one_but_eleven`: one for 1, 21, 31, 101, never 11), he, ar, ja/zh/ko and id/ms/vi/th (one form, no
-  plural); anything else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu, fil, ur, az, kk, uz, ka, gl, ca, eu, sq -- counts like English; Turkish,
-  Hungarian, Filipino, Bengali, Persian, Azerbaijani, Kazakh, Uzbek and Georgian write both forms the same, a noun after a number staying as it is).
+  `PLURAL_RULES` (en, lv and ltg (Latgalian: CLDR has none, it counts as Latvian does), ru/uk/be and hr/sr, pl, cs and sk, ro, lt, sl, fr/pt and hi/bn and fa/hy (fa_AF, Dari, takes fa's through its bare language), is/mk (`_one_but_eleven`: one for 1, 21, 31, 101, never 11), he, ar, ja/zh/ko and id/ms/vi/th (one form, no
+  plural); anything else -- de, es, it, tr, nl, sv, da, nb, fi, et, el, bg, hu, fil, ur, az, kk, uz, ka, gl, ca, eu, sq, ky, tk, tg, mn, ku, ne -- counts like English; Turkish,
+  Hungarian, Filipino, Bengali, Persian, Azerbaijani, Kazakh, Uzbek, Georgian, Kyrgyz, Turkmen, Tajik, Mongolian,
+  Kurmanji and Nepali write both forms the same, a noun after a number staying as it is).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
@@ -93,10 +94,11 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   Vietnamese input method types the bare letter, never `ă ê ơ ư` or a toned one. Turkish avoids `I`/`İ`/`ı` as a hotkey: `MenuBar.hotkey`
   compares `.lower()`, and `"İ".lower()` is two characters. Greek avoids accented letters (`ά έ ή ί ό ύ ώ`) and
   final `ς` as hotkeys: Alt with a Greek layout types the plain letter, so an accented hotkey cannot be pressed.
-  Azerbaijani follows Turkish (no `I`/`İ`/`ı`, nor `ə`); Uzbek never puts one on `ʻ` (U+02BB, the letter of
+  Azerbaijani follows Turkish (no `I`/`İ`/`ı`, nor `ə`), and Kurmanji (`ku`) avoids `I`/`İ`/`ı` too, though its i/I
+  are the ordinary pair; Uzbek never puts one on `ʻ` (U+02BB, the letter of
   `oʻ`/`gʻ`, never an ASCII apostrophe). Persian, Urdu and Georgian mark only a letter an unshifted key of their
   standard layout types (or ASCII): `navkit/keyboard.py` maps it back to the US key, Persian's and Urdu's tables
-  per interface language (`LAYOUTS`, the two put shared letters on different keys), Georgian's in the shared
+  per interface language (Dari, `fa_AF`, gets Persian's: `latin()` looks up the bare language) (`LAYOUTS`, the two put shared letters on different keys), Georgian's in the shared
   `LATIN`; Urdu's layout has 26 letters, so a crowded scope (Options > Interface) is reworded rather than solved.
   Armenian and Kazakh need no table: Alt with their own layout types the marked letter.
   A letter typed through a **dead key** never carries a hotkey, Alt cannot press it: Catalan, Galician and Basque
