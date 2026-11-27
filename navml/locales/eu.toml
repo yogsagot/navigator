@@ -574,7 +574,7 @@ flag = "ES"
 # navml/calendars.py:1677
 "Asalha Puja" = "Asalha Puja"
 # navml/calendars.py:830, navml/calendars.py:1449
-"Leap {number}" = "Gehigarri {number}"
+"Leap {number}" = "{number} bis"
 # navml/calendars.py:991
 "ROC {year}" = "ROC {year}"
 # navml/calendars.py:1467
@@ -766,7 +766,7 @@ flag = "ES"
 # navml/widgets/dialog/input_line/input_line.py:451
 "~P~aste" = "~I~tsatsi"
 # navml/widgets/dialog/input_line/input_line.py:452
-"C~l~ear" = "Ga~r~bitu"
+"C~l~ear" = "~G~arbitu"
 # navml/widgets/dialog/input_line/input_line.py:454
 "Select ~a~ll" = "Hautatu ~d~ena"
 # navml/widgets/dialog/input_line/input_line.py:420
